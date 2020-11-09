@@ -1,0 +1,69 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <title>Auction Site</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
+
+</head>
+
+<body>
+    <div class="request-overlay hidden" id="request-overlay"></div>
+    <div class="sr-root">
+        <div class="sr-main">
+          <header class="sr-header">
+            <div class="sr-header__logo"></div>
+          </header>
+          <div class="sr-payment-summary payment-view">
+            <h1 class="order-amount">Auction List</h1>
+            <div class="sr-legal-text" style="text-align: left;">
+                <hr>
+                <h5>Auctions going on now</h5>   
+
+            </div>
+          </div>
+          {% for auction in auction_list %}    
+          <div class="pricing-option">
+              <h1>{{ auction.title }}</h1>
+              <hr>
+              {{ auction.description }}
+              <ul>
+                  <li>${{ auction.current_bid }} Current Bid</li>
+                  <li>${{ auction.buy_now_price }} Buy Now</li>
+              </ul>
+                <button 
+                    style="width: 100%"
+                >
+                <span id="button-text">Bid</span>
+            </button>
+          </div>
+          {% endfor %}
+
+          
+        </div>
+      </div>
+ 
+    <!-- End Container-->
+    </div>
+
+    <!-- JQuery
+    ================================================== -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    
+    <!-- Mask (For Phone Numbers)
+    ================================================== -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.mask.js') }}"></script>
+
+    <!-- IN2L
+    ================================================== -->
+    <script>
+    </script>
+</body>
+</html>
