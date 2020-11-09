@@ -4,8 +4,8 @@ import requests
 
 def get_user_list():
 
-    url = 'http://0.0.0.0:5090/api/user_list'
-    #url = 'http://localhost:5001/api/user_list'
+    user_service_ip = "127.20.0.1"
+    url = 'http://{}:5090/api/user_list'.format(user_service_ip)
     response = requests.get(url=url)
 
     if response.status_code == 200:
