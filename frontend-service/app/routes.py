@@ -34,6 +34,10 @@ def auction_list():
         }
     ]
 
+    template = render_template('auction_list.html', 
+        auction_list=auction_list
+    )
+    
     return template
 
 #*********************************************************************
