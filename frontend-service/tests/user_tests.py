@@ -1,5 +1,5 @@
 import pytest
-from app import run
+from app import app
 
 @pytest.fixture
 def app_start():
