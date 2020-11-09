@@ -18,3 +18,6 @@ Iteration Three Instructions:
 	- In browser, naviagate to http://127.0.0.1:5080/home
 
 You will see a list of users returned from the user service
+
+
+For tests, go to a microservice directory, and setup a virutal environment, installing the packages from requirements.txt. Actvate the virtualenv,  export PYTHONPATH="$PYTHONPATH:"your path". And then run the command pytest

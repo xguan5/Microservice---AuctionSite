@@ -14,10 +14,7 @@ def app_start():
 def client(app_start):
     return app_start.test_client()
 
-def test_hello(client):
-    response = client.get('/hello')
-    assert response.data == b'Hello, World!'
 
-def test_get_auction_list(client):
-    response = client.get('/')
+def test_get_user_list(client):
+    response = client.get('/api/user_list')
     assert response.status_code == 200
