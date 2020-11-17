@@ -89,7 +89,7 @@ def delete_auction(id):
 def get_bids(id):
 	#auction = models.Auction.query.get(id)
 	all_biddings = []
-	for row in models.Auction.query.filter_by(id=id):
+	for row in models.Bidding.query.filter_by(auction_id=id):
 		all_biddings.append(row.to_json())
 	res = jsonify(all_biddings)
 	return res
