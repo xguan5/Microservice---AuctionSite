@@ -14,9 +14,9 @@ def create_app(test_config=None):
     basedir = os.path.abspath(os.path.dirname(__file__))
 
     app.config.update(dict(
-        SECRET_KEY="dev",
+        SECRET_KEY="powerful secretkey",
         WTF_CSRF_SECRET_KEY="a csrf secret key",
-        SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(basedir, 'db.sqlite'),
+        SQLALCHEMY_DATABASE_URI='postgresql://localhost/auction_db'
     ))
 
     models.init_app(app)
