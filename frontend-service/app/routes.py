@@ -12,11 +12,19 @@ from . import authentication_client as auth
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
+def check_login():
+    if not session.get('username'): return False
+    return auth.check_login(session.get('username'))
+
 #*********************************************************************
 # Home, display list of auctions
 #*********************************************************************
 @bp.route('/', methods=['GET'])
 def auction_list():
+    print(session)
+
+    if not check_login():
+        return redirect( url_for('routes.login') )
 
     auction_list = auctions.get_all_auctions()
 
@@ -44,30 +52,48 @@ def login():
 
     error = None
 
-    if request.method == 'POST':
-        result = auth.login(request.form['user_id'], request.form['password'])
+    print(request.form)
 
+    if request.method == 'POST':
+        result = auth.login(request.form['username'], request.form['password'])
         print(result)
         if result.get('result') == True:
+            session['username'] = request.form['username']
             return redirect(url_for('routes.auction_list'))
         else:
-            error = result.get('message')
+            error = result.get('content')
 
     template = render_template('login.html', error=error)
 
     return template
 
-#*********************************************************************
-# Display list of users
-#*********************************************************************
-@bp.route('/user_list', methods=['GET'])
-def user_list():  
+@bp.route('/logout',methods=['POST', 'GET'])
+def logout():
 
-    user_list = users.get_user_list()
+     auth.logout(session.get('username'))
 
+     session['username'] = None
 
-    template = render_template('user_list.html', 
-        user_list=user_list
-    )
+     return redirect(url_for('routes.login'))
+
+@bp.route('/signup', methods=['GET', 'POST'])
+def signup():
+    error = None
+
+    if request.method == 'POST':
+        user_result = users.create_user(request.form)
+        credential_result = auth.create_credentials(request.form['username'], request.form['password'])
+
+        if user_result.get('result') and credential_result.get('result') == True:
+            result = auth.login(request.form['username'], request.form['password'])
+            session['username'] = request.form['username']
+            return redirect(url_for('routes.auction_list'))
+        else:
+            if user_result.get('result')  == False:
+                error = user_result.get('content')
+            if credential_result.get('result')  == False:
+                error = credential_result.get('content')
+
+    template = render_template('signup.html', error=error)
 
     return template

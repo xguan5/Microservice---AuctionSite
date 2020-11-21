@@ -18,17 +18,21 @@ def create_tables(app):
     return engine
 
 class Credentials(db.Model):
-    user_id = db.Column(db.String, primary_key=True)
+    username = db.Column(db.String, primary_key=True)
     password = db.Column(db.String)
+    logged_in = db.Column(db.Boolean)
+
     #auction_id = db.Column(db.Integer, db.ForeignKey('auction.id') )
     #bid_placed = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self,user_id,password):
-        self.user_id = user_id
+    def __init__(self,username,password, logged_in=False):
+        self.username = username
         self.password = password
+        self.logged_in = logged_in
 
     def to_json(self):
         return {
-            'user': self.user_id,
-            'password': self.password
+            'username': self.username,
+            'password': self.password,
+            'logged_in': self.logged_in
         }

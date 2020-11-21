@@ -40,30 +40,77 @@ def test():
 @bp.route('/api/authentication/login',methods=['POST'])
 def login():
 
-     user_id = request.form.get('user_id')
+     username = request.form.get('username')
      password = request.form.get('password')
 
      print(request.form)
      
-     user = models.Credentials.query.filter(models.Credentials.user_id.ilike(user_id)).first()
+     user = models.Credentials.query.filter(models.Credentials.username.ilike(username)).first()
 
      if user is None:
-          return jsonify({'result': False, 'message': 'User Not Found'})
+          return jsonify({'result': False, 'content': 'User Not Found'})
 
      if user.password == password:
           success = True
-          message = "Success"
+          user.logged_in = True
+          models.db.session.commit()
+          content = "Success"
      else:
           success = False
-          message = 'Incorrect Password'
+          content = 'Incorrect Password'
           
-     return jsonify({'result': success, 'message': message})
+     return jsonify({'result': success, 'content': content})
 
-@bp.route('/api/authentication/check_login',methods=['POST'])
-def login():
+@bp.route('/api/authentication/logout',methods=['POST'])
+def logout():
 
-     user_id = request.form.get('user_id')
+     username = request.form.get('username')
      
-     result = True#check_login(user_id)
+     try:
+          user = models.Credentials.query.filter(models.Credentials.username.ilike(username)).first()
+          user.logged_in = False
+          models.db.session.commit()
+          return jsonify({'result': True, 'content': 'Logged Out'})
+     except Exception as e:
+          return jsonify({'result': False, 'content': 'error'})
 
-     return jsonify(result)
+
+@bp.route('/api/authentication/create',methods=['POST'])
+def create_credentials():
+
+     print(request.form)
+
+     username = request.form.get('username')
+     password = request.form.get('password')
+
+     try:
+          new = models.Credentials(username, password, True)
+          models.db.session.add(new)
+          models.db.session.commit()
+          success = True
+          content = 'Added'
+     except Exception as e:
+          success = False
+          content = str(e)
+          
+     return jsonify({'result': True, 'content': content})
+
+@bp.route('/api/authentication/check',methods=['POST'])
+def check_login():
+
+     username = request.form.get('username')
+     
+     user = models.Credentials.query.filter(models.Credentials.username.ilike(username)).first()
+
+     if user is None:
+          return jsonify({'result': False, 'content': 'User Not Found'})
+
+     if user.logged_in == True:
+          success = True
+          content = "Success"
+     else:
+          success = False
+          content = 'Logged out'
+
+
+     return jsonify({'result': success, 'content': content})

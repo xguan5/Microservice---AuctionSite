@@ -6,17 +6,11 @@ def get_ip():
     return auction_service_ip
 
 def get_port():
-    return 5001
-""" 
-payment: 5003
-item: 5004
-delivery: 5006
-notification: 5007
-"""
+    return 5007
 
 def create_user(data):
 
-    url = 'http://{}:{}}/api/create_account'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
 
     response = requests.post(url=url, data=data)
 
