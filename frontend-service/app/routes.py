@@ -7,6 +7,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, escape, json, jsonify, Response, Blueprint
 import requests
 from . import user_client as users
+from . import auction_client as auctions
+from . import authentication_client as auth
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -16,28 +18,43 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 @bp.route('/', methods=['GET'])
 def auction_list():
 
-    print('here')
-    
-    auction_list = [
-        {
-            'title': 'iPhone 16s',
-            'description': 'Phone from the future in mint condition',
-            'current_bid': '$80.53',
-            'buy_now_price': '499.99'
+    auction_list = auctions.get_all_auctions()
 
-        },
-        {
-            'title': 'Golden Retriever',
-            'description': 'Who put a dog on here? that\'s kind of messed up.',
-            'current_bid': '$999.53',
-            'buy_now_price': '10000000.99'
-        }
-    ]
+    print(auction_list)
 
     template = render_template('auction_list.html', 
         auction_list=auction_list
     )
     
+    return template
+
+@bp.route('/auction_details/<auction_id>', methods=['GET'])
+def get_auction_details(auction_id):
+
+    auction_details = auctions.get_auction_details(auction_id)
+
+    template = render_template('auction_details.html', 
+        auction_details=auction_details.get('result')
+    )
+    
+    return template
+
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+
+    error = None
+
+    if request.method == 'POST':
+        result = auth.login(request.form['user_id'], request.form['password'])
+
+        print(result)
+        if result.get('result') == True:
+            return redirect(url_for('routes.auction_list'))
+        else:
+            error = result.get('message')
+
+    template = render_template('login.html', error=error)
+
     return template
 
 #*********************************************************************

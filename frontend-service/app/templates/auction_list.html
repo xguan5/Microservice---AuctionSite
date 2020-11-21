@@ -31,18 +31,20 @@
           </div>
           {% for auction in auction_list %}    
           <div class="pricing-option">
-              <h1>{{ auction.title }}</h1>
+              <h1>{{ auction.name }}</h1>
               <hr>
-              {{ auction.description }}
+              {{ auction.name }}
               <ul>
                   <li>${{ auction.current_bid }} Current Bid</li>
                   <li>${{ auction.buy_now_price }} Buy Now</li>
+                  <li>Auction Ends: {{ auction.end_time }} </li>
               </ul>
-                <button 
+                <a 
+                    href="{{ url_for('routes.get_auction_details', auction_id=1) }}"
                     style="width: 100%"
                 >
-                <span id="button-text">Bid</span>
-            </button>
+                <span id="button-text" >Open</span>
+            </a>
           </div>
           {% endfor %}
 

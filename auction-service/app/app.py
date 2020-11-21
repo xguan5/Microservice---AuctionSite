@@ -16,7 +16,7 @@ def create_app(test_config=None):
     app.config.update(dict(
         SECRET_KEY="powerful secretkey",
         WTF_CSRF_SECRET_KEY="a csrf secret key",
-        SQLALCHEMY_DATABASE_URI='postgresql://localhost/auction_db'
+        SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost/auction_db'
     ))
 
     models.init_app(app)

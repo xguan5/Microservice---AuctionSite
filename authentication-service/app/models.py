@@ -13,13 +13,12 @@ def init_app(app):
 
 
 def create_tables(app):
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], echo=True)
     db.metadata.create_all(engine)
     return engine
 
 class Credentials(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.String, primary_key=True)
     password = db.Column(db.String)
     #auction_id = db.Column(db.Integer, db.ForeignKey('auction.id') )
     #bid_placed = db.Column(db.DateTime, default=datetime.utcnow)
