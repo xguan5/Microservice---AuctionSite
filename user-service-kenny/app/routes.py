@@ -146,7 +146,7 @@ def clear_cart(u_id):
     cart = json.loads(view_cart(u_id))
 
     for item in cart:
-        remove_from_cart(u_id, item['auc_id'])
+        remove_from_cart(u_id, json.loads(item)['auc_id'])
 
     return True
 
@@ -156,6 +156,14 @@ def clear_cart(u_id):
 def view_cart(u_id):
     """
     Allow a user to view their own cart.
+
+    Inputs:
+     - u_id (string): the username of the user whose cart you need
+    Returns:
+     - cart (JSON): a jsonified list of CartItem jsons; each CartItem JSON has
+       two keys:
+         - "username"
+         - "auc_id"
     """
     cart = []
 	for row in user.CartItem.query.filter_by(username=u_id):
