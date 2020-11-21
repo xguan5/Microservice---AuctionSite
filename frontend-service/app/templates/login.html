@@ -1,0 +1,72 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <title>Auction Site</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
+
+</head>
+
+<body>
+    <div class="request-overlay hidden" id="request-overlay"></div>
+    <div class="sr-root">
+        <div class="sr-main">
+          <header class="sr-header">
+            <div class="sr-header__logo"></div>
+          </header>
+          <div class="sr-payment-summary payment-view">
+            <h1 class="order-amount">Login</h1>
+            <div class="sr-legal-text" style="text-align: left;">
+                <hr>
+                <h5>Enter your username and password</h5>   
+
+            </div>
+          </div>
+          <div class="pricing-option">
+              <form action="{{ url_for('routes.login') }}" method="POST">
+              {% if error %}<h4 style="color:red">{{error}}  </h4> 
+              <hr>
+              {% endif %}
+              <ul>
+                  <h5>Username:</h5>
+                  <input type="text" name="user_id">
+                  <h5>Password:</h5>
+                  <input type="password" name="password">
+              </ul>
+                <button
+                    type="submit"
+                    style="width: 100%"
+                >
+                <span id="button-text" >Submit</span>
+                </button>
+            </form>
+          </div>
+
+          
+        </div>
+      </div>
+ 
+    <!-- End Container-->
+    </div>
+
+    <!-- JQuery
+    ================================================== -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    
+    <!-- Mask (For Phone Numbers)
+    ================================================== -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.mask.js') }}"></script>
+
+    <!-- IN2L
+    ================================================== -->
+    <script>
+    </script>
+</body>
+</html>
