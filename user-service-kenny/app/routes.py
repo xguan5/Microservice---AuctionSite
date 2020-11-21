@@ -41,15 +41,15 @@ def create_user():
     address_state = content["address_state"]
     address_zip = content["address_zip"]
     status = content["status"]
-    role = content["role"]
+    # role = content["role"]
 
     new_user = user.User(username, email, address_1, address_2, address_city,
-                         address_state, address_zip, status, role)
+                         address_state, address_zip, status)#, role)
 
     models.db.session.add(new_user)
     models.db.session.commit()
 
-    return jsonify({'result': new_user.to_json()})
+    return new_user.to_json()
 
 
 # View a user's profile
@@ -113,7 +113,13 @@ def add_to_cart(u_id, auc_id):
     Allow a user to add either a victorious auction or a "buy-now" item to
     their cart.
     """
-    pass
+
+    added_item = user.CartItem(u_id, auc_id)
+
+    models.db.session.add(added_item)
+    models.db.session.commit()
+
+    return added_item.to_json()
 
 
 # Remove from cart
@@ -122,7 +128,27 @@ def remove_from_cart(u_id, auc_id):
     """
     Allow a user to remove a "buy-now" item to their cart.
     """
-    pass
+    item_to_remove = user.CartItem.query.get(user.CartItem(u_id, auc_id))
+
+	models.db.session.delete(item_to_remove)
+	models.db.session.commit()
+	return item_to_remove.to_json()
+
+
+# Clear a cart
+@bp.route('/api/clear_cart/<u_id:int>', methods=['GET'])
+def clear_cart(u_id):
+    """
+    Completely clear a user's cart. Should only be called when a payment has
+    been processed, because users who win an auction are obligated to pay for
+    the won item.
+    """
+    cart = json.loads(view_cart(u_id))
+
+    for item in cart:
+        remove_from_cart(u_id, item['auc_id'])
+
+    return True
 
 
 # View cart
@@ -131,7 +157,11 @@ def view_cart(u_id):
     """
     Allow a user to view their own cart.
     """
-    pass
+    cart = []
+	for row in user.CartItem.query.filter_by(username=u_id):
+		cart.append(row.to_json())
+
+	return jsonify(cart)
 
 
 #############

@@ -64,3 +64,13 @@ class User(db.Model):
             'address_state': self.address_state,
             'address_zip': self.address_zip
         }
+
+
+class CartItem(db.Model):
+    username = db.Column(db.String(255), unique=True)
+    auc_id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, username, email):
+        self.username = username
+        self.email = email
+
