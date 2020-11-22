@@ -23,3 +23,13 @@ def create_user(data):
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
+def get_user_details(username):
+
+    url = 'http://{}:{}/api/view_profile/{}'.format(get_ip(), get_port(), username)
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()

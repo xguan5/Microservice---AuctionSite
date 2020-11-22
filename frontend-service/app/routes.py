@@ -42,7 +42,7 @@ def get_auction_details(auction_id):
     auction_details = auctions.get_auction_details(auction_id)
 
     template = render_template('auction_details.html', 
-        auction_details=auction_details.get('result')
+        auction_details=auction_details.get('content')
     )
     
     return template
@@ -96,4 +96,16 @@ def signup():
 
     template = render_template('signup.html', error=error)
 
+    return template
+
+
+@bp.route('/user/<username>',methods=['POST', 'GET'])
+def user_details(username):
+
+    user_details = users.get_user_details(username)
+
+    template = render_template('user_details.html', 
+        user_details=user_details.get('content')
+    )
+    
     return template
