@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - 5091:5000
+    volumes:
+      - ./app:/app
+
+  database:
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: authentication
+    image: postgres:latest
+    container_name: authentication_postgreql
+    ports:
+      - 5432:5432
+    volumes:
+      - db_volume:/var/lib/postgresql
+    
+volumes:
+  db_volume:

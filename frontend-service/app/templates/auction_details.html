@@ -22,33 +22,39 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h3 class="order-amount">{{ session.get('username') }} - <a href="{{ url_for('routes.logout') }}"> logout </a></h3>
-            <hr>
-            <h1 class="order-amount">Auction List</h1>
+            <h1 class="order-amount">Auction </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
-                <h5>Auctions going on now</h5>   
+                <h5>Auction details</h5>   
 
             </div>
           </div>
-          {% for auction in auction_list %}    
           <div class="pricing-option">
-              <h1>{{ auction.name }}</h1>
+              <h1>{{ auction_details.name }}</h1>
               <hr>
-              {{ auction.name }}
               <ul>
-                  <li>${{ auction.current_bid }} Current Bid</li>
-                  <li>${{ auction.buy_now_price }} Buy Now</li>
-                  <li>Auction Ends: {{ auction.end_time }} </li>
+                  <li>Item: {{ auction_details.item }}</li>
+                  <li>Started: {{ auction_details.start_time }}</li>
+                  <li>Current Bid: ${{ auction_details.current_bid }}</li>
+                  <li>Buy Now Price: ${{ auction_details.buy_now_price }} </li>
+                  <li>Auction Ends: {{ auction_details.end_time }} </li>
               </ul>
+
+                <input type="number" name="bid_amount">
+                
                 <a 
-                    href="{{ url_for('routes.get_auction_details', auction_id=1) }}"
+                    href=""
                     style="width: 100%"
                 >
-                <span id="button-text" >Open</span>
-            </a>
+                    <span id="button-text" >Bid</span>
+                </a>
+                <a 
+                    href=""
+                    style="width: 100%"
+                ><br>
+                    <span id="button-text" style="margin-top: 10px">Buy Now</span>
+                </a>
           </div>
-          {% endfor %}
 
           
         </div>

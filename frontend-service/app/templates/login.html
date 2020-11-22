@@ -22,33 +22,34 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h3 class="order-amount">{{ session.get('username') }} - <a href="{{ url_for('routes.logout') }}"> logout </a></h3>
-            <hr>
-            <h1 class="order-amount">Auction List</h1>
+            <h1 class="order-amount">Login</h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
-                <h5>Auctions going on now</h5>   
+                <h5>Enter your username and password</h5>   
 
             </div>
           </div>
-          {% for auction in auction_list %}    
           <div class="pricing-option">
-              <h1>{{ auction.name }}</h1>
+              <form action="{{ url_for('routes.login') }}" method="POST">
+              {% if error %}<h4 style="color:red">{{error}}  </h4> 
               <hr>
-              {{ auction.name }}
+              {% endif %}
+              <a href="{{ url_for('routes.signup') }}">Sign Up</a>
+              <hr>
               <ul>
-                  <li>${{ auction.current_bid }} Current Bid</li>
-                  <li>${{ auction.buy_now_price }} Buy Now</li>
-                  <li>Auction Ends: {{ auction.end_time }} </li>
+                  <h5>Username:</h5>
+                  <input type="text" name="username">
+                  <h5>Password:</h5>
+                  <input type="password" name="password">
               </ul>
-                <a 
-                    href="{{ url_for('routes.get_auction_details', auction_id=1) }}"
+                <button
+                    type="submit"
                     style="width: 100%"
                 >
-                <span id="button-text" >Open</span>
-            </a>
+                <span id="button-text" >Submit</span>
+                </button>
+            </form>
           </div>
-          {% endfor %}
 
           
         </div>
