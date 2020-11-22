@@ -58,7 +58,10 @@ class Auction(db.Model):
             'start_bid_price': self.start_bid_price,
             'inc_bid_price': self.inc_bid_price,
             'start_time': self.start_time,
-            'end_time': self.end_time
+            'end_time': self.end_time,
+            'status': self.status,
+            'date_updated': self.date_updated,
+            'winner': self.winner_id
         }
 
 class Bidding(db.Model):
