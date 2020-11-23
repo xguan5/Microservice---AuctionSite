@@ -6,7 +6,7 @@ def get_user_list():
 
     return [
         {
-            'username': 'Tester',
+            'username': 'Tester-proof',
             'description': 'Filler Texfeaft',
              'rating': 4.0
         },

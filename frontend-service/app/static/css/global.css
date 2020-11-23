@@ -175,6 +175,19 @@ input[type="text"]::placeholder {
   color: var(--gray-light);
 }
 
+input[type="password"] {
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  height: 44px;
+  width: 100%;
+  transition: box-shadow 0.2s ease;
+  background: white;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 /* Checkbox */
 .sr-checkbox-label {
   position: relative;

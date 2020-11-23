@@ -13,23 +13,26 @@ def init_app(app):
 
 
 def create_tables(app):
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], echo=True)
     db.metadata.create_all(engine)
     return engine
 
 class Credentials(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    username = db.Column(db.String, primary_key=True)
     password = db.Column(db.String)
+    logged_in = db.Column(db.Boolean)
+
     #auction_id = db.Column(db.Integer, db.ForeignKey('auction.id') )
     #bid_placed = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self,user_id,password):
-        self.user_id = user_id
+    def __init__(self,username,password, logged_in=False):
+        self.username = username
         self.password = password
+        self.logged_in = logged_in
 
     def to_json(self):
         return {
-            'user': self.user_id,
-            'password': self.password
+            'username': self.username,
+            'password': self.password,
+            'logged_in': self.logged_in
         }
