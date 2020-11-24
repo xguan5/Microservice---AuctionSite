@@ -59,6 +59,7 @@ def login():
         print(result)
         if result.get('result') == True:
             session['username'] = request.form['username']
+            session['is_admin'] = result['content']
             return redirect(url_for('routes.auction_list'))
         else:
             error = result.get('content')
@@ -81,12 +82,17 @@ def signup():
     error = None
 
     if request.method == 'POST':
+        if request.form['is_admin'] == "TRUE": is_admin = True
+        else: is_admin = False
+
+
         user_result = users.create_user(request.form)
-        credential_result = auth.create_credentials(request.form['username'], request.form['password'])
+        credential_result = auth.create_credentials(request.form['username'], request.form['password'], is_admin)
 
         if user_result.get('result') and credential_result.get('result') == True:
             result = auth.login(request.form['username'], request.form['password'])
             session['username'] = request.form['username']
+            session['is_admin'] = is_admin
             return redirect(url_for('routes.auction_list'))
         else:
             if user_result.get('result')  == False:
@@ -99,8 +105,18 @@ def signup():
     return template
 
 
+@bp.route('/user-updates/<username>',methods=['POST', 'GET'])
+def user_update(username):
+
+    user_details = users.update_user(username, request.form)
+
+    return redirect(url_for('routes.user_details', username=username))
+    
 @bp.route('/user/<username>',methods=['POST', 'GET'])
 def user_details(username):
+
+    if username != session.get('username') and not session.get('is_admin'):
+        return "<h1>You are not this user and you are not an admin</h1>"
 
     user_details = users.get_user_details(username)
 

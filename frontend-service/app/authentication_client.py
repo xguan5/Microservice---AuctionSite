@@ -20,7 +20,7 @@ def login(username, password):
         return response.json()
 
 def logout(username):
-    url = 'http://{}:{}}/api/authentication/logout'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/authentication/logout'.format(get_ip(), get_port())
 
     body = {'username': username}
     response = requests.post(url=url, data=body)
@@ -29,10 +29,10 @@ def logout(username):
         print(response.json())
         return response.json()
 
-def create_credentials(username, password):
-    url = 'http://{}:{}}/api/authentication/create'.format(get_ip(), get_port())
+def create_credentials(username, password, is_admin):
+    url = 'http://{}:{}/api/authentication/create'.format(get_ip(), get_port())
 
-    body = {'username': username, 'password': password}
+    body = {'username': username, 'password': password, 'is_admin': is_admin}
     response = requests.post(url=url, data=body)
 
     if response.status_code == 200:
@@ -43,7 +43,7 @@ def create_credentials(username, password):
         print('here')
 
 def check_login(username):
-    url = 'http://{}:{}}/api/authentication/check'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/authentication/check'.format(get_ip(), get_port())
 
     body = {'username': username}
     response = requests.post(url=url, data=body)
