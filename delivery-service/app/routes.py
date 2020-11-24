@@ -12,10 +12,18 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 
 # create shipping label
 @bp.route('/api/delivery/generatelabel', methods=['POST'])
-def create_label(userid):
-	pass
+def create_label(transact_id):
+    pass
 
 # create a delivery
 @bp.route('api/delivery/create',methods=['POST'])
-def schedule_delivery():
-	pass
+def schedule_delivery(transaction_id):
+	new_info = request.form
+	package_size = new_info['package_size'] # small package or med / large boxes
+    courier = new_info['courier'] # DHL, EMS, Fedex
+    shipping_option = new_info['shipping_option'] # standard or expedited
+
+    Delivery(transact_id, package_size, courier, shipping_option))
+    
+    return True
+    

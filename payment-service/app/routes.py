@@ -7,6 +7,7 @@ import os
 import sys
 import traceback
 import time
+import random
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -84,8 +85,30 @@ def delete_PaymentMethod(pmtid):
 	models.db.session.commit()
 	return jsonify({'result': pmt_method.to_json()})
 
+
+
+@bp.route('api/viewcart/<userid>/checkout',methods = ['POST'])
+def check_out_cart(userid):
+	cart = jason.loads(view_cart(userid))
+	check_out_count = 0
+
+	for auc in cart:
+		if auc[status] == 'end' and auc[winner_id] == userid:
+			temp = Transaction(userid, auc[creator],auc.bid_price, "T" & str(random.rand()*1000000), ), 
+			process_transaction(temp)
+			check_out_count += 1
+	
+	clear_cart(userid)
+	
+	if check_out_count > 0:
+		return True # checked out something
+	else:
+		return False # nothing to checkout
+
+
+'''
 # create a transaction (pay for a won auction)
-bp.route('api/user/<userid>/transaction/pay/<auctionid>',methods=['POST'])
+@bp.route('api/user/<userid>/transaction/pay/<auctionid>',methods=['POST'])
 def pay_trasaction(userid, auctionid):
 	
     # not sure how to tell who is the winner from auction class???
@@ -101,3 +124,4 @@ def pay_trasaction(userid, auctionid):
         print("Thank you for your payment. ")
         print("You will receive shipping confirmation shortly")
 	    return jsonify({'result': new_transaction.to_json()})
+'''

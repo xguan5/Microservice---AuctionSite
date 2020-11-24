@@ -16,7 +16,7 @@ def create_tables(app):
 
 class PaymentMethod(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
     card_num = db.Column(db.Integer, nullable = False)
     billing_name = db.Column(db.String(26), nullable = False)
     billing_address1 = db.Column(db.String(50), nullable = False)
@@ -58,22 +58,26 @@ class PaymentMethod(db.Model):
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    # Need to confirm if the following foreign keys are consistent
-    payer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    
-    #receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    
-    # Assuming a transaction can contain only one won auction
-    auctions = db.relationship('CheckoutAuction', backref='checkoutAction')
+    payer_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    pay_amount = db.Column(db.String(15), nullable = False)
+    #item_id = db.Column(db.Integer, db.ForeignKey(item.id))
+    #auctions = db.relationship('CheckoutAuction', backref='checkoutAction')
     transact_date = db.Column(db.DateTime, default = datetime.utcnow)
     
     payment_method = db.Column(db.Integer, db.ForeignKey('PaymentMethod.id'))
 
-    def __init__(self, payer_id, auction_id, paymethod_id, status = 'Pending Payment'):
+    def __init__(self, payer_id, receiver_id, pay_amount, paymethod_id, status = 'Pending Payment'):
         self.payer_id = payer_id
-        self.auction_id = auction_id
+        self.receiver_id = receiver_id
+        self.pay_amount = pay_amount
         self.paymethod_id = paymethod_id
         self.status = status
+
+    # process transaction, mark transaction as completed
+    def process_transaction(self):
+        self.status = 'completed'
+
 
     def to_json(self):
         return {

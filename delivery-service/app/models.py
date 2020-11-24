@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
+import random
 
 db = SQLAlchemy()
 
@@ -16,16 +17,18 @@ def create_tables(app):
 
 class delivery(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+    pacakage_size = db.Column(db.String, nullable = False)
     tracking_num = db.Column(db.Integer)
     courier = db.Column(db.String(5), nullable = False)
     shipping_option = db.Column(db.String(10), nullable = False)
     
-    def __init__(self, transact_id, courier, shipping_option):
+    def __init__(self, transact_id, package_size, courier, shipping_option):
         self.transact_id = transact_id
+        self.package_size = package_size
         self.courier = courier
         self.shipping_option = shipping_option
         
-        self.tracking_num = 0
+        self.tracking_num = random.rand().1000000000000 #need to check this
 
     def to_json(self):
         return {
