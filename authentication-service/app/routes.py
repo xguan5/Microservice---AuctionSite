@@ -54,7 +54,7 @@ def login():
           success = True
           user.logged_in = True
           models.db.session.commit()
-          content = "Success"
+          content = user.is_admin
      else:
           success = False
           content = 'Incorrect Password'
@@ -82,9 +82,11 @@ def create_credentials():
 
      username = request.form.get('username')
      password = request.form.get('password')
+     is_admin = False
+     if request.form.get('is_admin') == 'True': is_admin = True
 
      try:
-          new = models.Credentials(username, password, True)
+          new = models.Credentials(username, password, True, is_admin)
           models.db.session.add(new)
           models.db.session.commit()
           success = True

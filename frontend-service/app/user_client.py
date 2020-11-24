@@ -16,7 +16,26 @@ notification: 5007
 
 def create_user(data):
 
-    url = 'http://{}:{}}/api/create_account'.format(get_ip(), get_port())
+    return {
+        'result': True,
+        'content': 'Success'
+    }
+
+    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def update_user(username, data):
+    return {
+        'result': True,
+        'content': 'Success'
+    }
+
+    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
 
     response = requests.post(url=url, data=data)
 
@@ -25,6 +44,20 @@ def create_user(data):
         return response.json()
 
 def get_user_details(username):
+
+    return { 
+        'result': True,
+        'content': {
+            'username': 'clocke',
+            'email': 'Chip@test.com',
+            'address_1': '123 fake st',
+            'address_2': 'Apt 2',
+            'address_city': 'Rochester',
+            'address_state': 'MN',
+            'address_zip': '55902',
+            'status': 'Active'
+        }
+    }
 
     url = 'http://{}:{}/api/view_profile/{}'.format(get_ip(), get_port(), username)
 
