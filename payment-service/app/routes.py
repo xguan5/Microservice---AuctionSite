@@ -1,7 +1,8 @@
 from flask import Flask, make_response, abort, request, session, g, redirect, \
     redirect, url_for, abort, render_template, flash, escape, json, jsonify,\
         Response, Blueprint
-from models import db, PaymentMethod, Trasaction
+from . import models
+#from models import db, PaymentMethod, Trasaction
 from datetime import datetime
 import os
 import sys
@@ -16,8 +17,8 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 def get_PaymentMethod(userid):
 	pmt_methods = []
 	for row in PaymentMethod.query.all():
-        if userid = row.user_id
-		    pmt_methods.append(row.to_json())
+		if userid == row.user_id:
+			pmt_methods.append(row.to_json())
 	pmt_methods_dict = jsonify(pmt_methods)
 	return pmt_methods_dict
 
@@ -26,8 +27,8 @@ def get_PaymentMethod(userid):
 def create_PaymentMethod():
 	new_info = request.form
 	
-    card_num = new_info['card_num']
-    billing_name = new_info['billing_name']
+	card_num = new_info['card_num']
+	billing_name = new_info['billing_name']
 	billing_address1 = new_info['billing_address1']
 	billing_address2 = new_info['billing_address2']
 	billing_city = new_info['billing_city']
@@ -35,7 +36,7 @@ def create_PaymentMethod():
 	billing_state = new_info['billing_state']
 	billing_country = new_info['billing_country']
 	exp_date = new_info['exp_date']
-    csv_code = new_info['csv_code']
+	csv_code = new_info['csv_code']
 
 	new_PaymentMethod = PaymentMethod(user_id, card_num, billing_name, \
         billing_address1, billing_address2, billing_city, billing_zip, \
@@ -61,17 +62,17 @@ def update_PaymentMethod(pmtid):
 	billing_state = new_info['billing_state']
 	billing_country = new_info['billing_country']
 	exp_date = new_info['exp_date']
-    csv_code = new_info['csv_code']
+	csv_code = new_info['csv_code']
 
-    pmt_method.billing_name = billing_name
-    pmt_method.billing_address1 = billing_address1
-    pmt_method.billing_address2 = billing_address2
-    pmt_method.billing_city = billing_city
-    pmt_method.billing_zip = billing_zip
-    pmt_method.billing_state = billing_state
-    pmt_method.billing_country = billing_country
-    pmt_method.exp_date = exp_date
-    pmt_method.csv_code = csv_code
+	pmt_method.billing_name = billing_name
+	pmt_method.billing_address1 = billing_address1
+	pmt_method.billing_address2 = billing_address2
+	pmt_method.billing_city = billing_city
+	pmt_method.billing_zip = billing_zip
+	pmt_method.billing_state = billing_state
+	pmt_method.billing_country = billing_country
+	pmt_method.exp_date = exp_date
+	pmt_method.csv_code = csv_code
 
 	models.db.session.commit()
 

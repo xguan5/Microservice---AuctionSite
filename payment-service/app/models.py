@@ -82,8 +82,8 @@ class Transaction(db.Model):
     def to_json(self):
         return {
             'payer_id': self.payer_id,
-            'receiver_id': self.receiver_id
-            'auctions':self.auctions
+            'receiver_id': self.receiver_id,
+            'auctions':self.auctions,
             'transact_date': self.transact_date
         }
 
