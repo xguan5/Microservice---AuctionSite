@@ -30,8 +30,6 @@ class User(db.Model):
     status = db.Column(db.Enum(["active",
                                 "suspended",
                                 "deleted"]))
-    role = db.Column(db.Enum(["basic",
-                              "admin"]))
 
     def __init__(self, username, email, address_1, address_2, address_city,
                  address_state, address_zip, status="active", role="basic"):
@@ -43,7 +41,6 @@ class User(db.Model):
         self.address_state = address_state
         self.address_zip = address_zip
         self.status = status
-        self.role = role
 
     def return_profile(self):
         return self.return_account().update(self.return_address)
@@ -51,9 +48,8 @@ class User(db.Model):
     def return_account(self):
         return {
             'username': self.username,
-            'email': self.email
-            'status': self.status,
-            'role': self.role
+            'email': self.email,
+            'status': self.status
         }
 
     def return_address(self):
@@ -66,11 +62,55 @@ class User(db.Model):
         }
 
 
+class Rating(db.Model):
+    rater_id = db.Column(db.String(255))
+    recipient_id = db.Column(db.String(255))
+    rating = db.Column(db.Integer)
+    review = db.Column(db.Text(4000))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, rater_id, recipient_id, rating, review, timestamp):
+        self.rater_id = rater_id
+        self.recipient_id = recipient_id
+        self.rating = rating
+        self.review = review
+        self.timestamp = timestamp
+
+    def return_rating(self):
+        return {
+            'rater_id': self.rater_id,
+            'recipient_id': self.recipient_id,
+            'rating': self.rating,
+            'review': self.review,
+            'timestamp': self.timestamp
+        }
+
+
 class CartItem(db.Model):
     username = db.Column(db.String(255), unique=True)
     auc_id = db.Column(db.Integer, primary_key=True)
 
-    def __init__(self, username, email):
+    def __init__(self, username, auc_id):
         self.username = username
-        self.email = email
+        self.auc_id = auc_id
 
+    def return_cart_item(self):
+        return {
+            'user_id': self.username,
+            'auc_id': self.auc_id
+        }
+
+
+class WatchlistItem(db.Model):
+    username = db.Column(db.String(255), unique=True)
+    auc_id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, username, auc_id):
+        self.username = username
+        self.auc_id = auc_id
+
+    def return_watchlist_item(self):
+        return {
+            'user_id': self.username,
+            'auc_id': self.auc_id
+        }

@@ -16,7 +16,8 @@ def create_tables(app):
 
 class PaymentMethod(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
+    card_num = db.Column(db.Integer, nullable = False)
     billing_name = db.Column(db.String(26), nullable = False)
     billing_address1 = db.Column(db.String(50), nullable = False)
     billing_address2 = db.Column(db.String(10))
@@ -27,9 +28,11 @@ class PaymentMethod(db.Model):
     exp_date = db.Column(db.Integer, nullable = False)
     csv_code = db.Column(db.Integer, nullable = False)
     
-    def __init__(self, user_id, billing_name, billing_address1, \
+    def __init__(self, user_id, card_num, billing_name, billing_address1, \
         billing_address2, billing_city, billing_zip, billing_state, \
             billing_country, exp_date, csv_code):
+        self.user_id = user_id
+        self.card_num = card_num
         self.billing_name = billing_name
         self.billing_address1 = billing_address1
         self.billing_address2 = billing_address2
@@ -40,14 +43,9 @@ class PaymentMethod(db.Model):
         self.exp_date = exp_date
         self.csv_code = csv_code
 
-    def update_method(self):
-        pass
-
-    def remove_method(self):
-        pass
-
     def to_json(self):
         return {
+            'card_num': self.card_num,
             'billing_name': self.billing_name,
             'billing_address1': self.billing_address1,
             'billing_address2':self.billing_address2,
@@ -60,24 +58,34 @@ class PaymentMethod(db.Model):
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    # Need to confirm if the following foreign keys are consistent
-    payer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    payer_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    # Assuming a transaction can have multiple auctions checked out together
-    auctions = db.relationship('CheckoutAuction', backref='checkoutAction')
+    pay_amount = db.Column(db.String(15), nullable = False)
+    #item_id = db.Column(db.Integer, db.ForeignKey(item.id))
+    #auctions = db.relationship('CheckoutAuction', backref='checkoutAction')
     transact_date = db.Column(db.DateTime, default = datetime.utcnow)
-    auction
+    
+    payment_method = db.Column(db.Integer, db.ForeignKey('PaymentMethod.id'))
+
+    def __init__(self, payer_id, receiver_id, pay_amount, paymethod_id, status = 'Pending Payment'):
+        self.payer_id = payer_id
+        self.receiver_id = receiver_id
+        self.pay_amount = pay_amount
+        self.paymethod_id = paymethod_id
+        self.status = status
+
+    # process transaction, mark transaction as completed
+    def process_transaction(self):
+        self.status = 'completed'
+
 
     def to_json(self):
         return {
             'payer_id': self.payer_id,
-            'receiver_id': self.receiver_id
-            'auctions':self.auctions
+            'receiver_id': self.receiver_id,
+            'auctions':self.auctions,
             'transact_date': self.transact_date
         }
 
-class CheckoutAuction(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'))
-    item_id = deb.Column(db.Integer, db.ForeignKey('item.id'))
+
     
