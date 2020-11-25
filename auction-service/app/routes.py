@@ -27,6 +27,7 @@ def get_auction(id):
 	return jsonify({'result': auction.to_json()})
 
 #create a new auction
+#To do: trigger notification
 @bp.route('api/auction/create',methods=['POST'])
 def create_auction():
 	#content = request.get_json(force=True)

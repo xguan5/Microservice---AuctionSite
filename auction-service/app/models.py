@@ -84,3 +84,4 @@ class Bidding(db.Model):
             'bid_price': self.bid_price,
             'bid_placed': self.bid_placed
         }
+
