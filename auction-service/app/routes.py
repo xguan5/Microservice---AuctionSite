@@ -7,6 +7,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, escape, json, jsonify, Response, Blueprint
 import requests
 from . import models as models
+from . import log_client as logs
 #from pandas.io.json import json_normalize 
 
 bp = Blueprint('routes', __name__, url_prefix='/')
@@ -42,6 +43,7 @@ def create_auction():
 	item = content['item']
 
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
+	log_result = json.dumps(logs.create_log({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)}))
 
 	models.db.session.add(new_auction)
 	models.db.session.commit()
@@ -83,6 +85,7 @@ def update_auction(id):
 		status = content['status']
 		auction.status = status
 
+	log_result = json.dumps(logs.create_log({'service':'auction','action':'update auction','timestamp':datetime.now(),'content':json.dumps(content)}))
 	models.db.session.commit()
 
 	return jsonify({'result': auction.to_json()})
@@ -93,6 +96,8 @@ def delete_auction(id):
 	auction = models.Auction.query.get(id)
 	models.db.session.delete(auction)
 	models.db.session.commit()
+	log_result = json.dumps(logs.create_log({'service':'auction','action':'delete auction','timestamp':datetime.now(),'content':'deleted auction {}'.format(id)}))
+
 	return jsonify({'result': auction.to_json()})
 
 
@@ -167,6 +172,8 @@ def create_bid(id):
 		models.db.session.commit()
 
 		success = True
+		log_result = json.dumps(logs.create_log({'service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)}))
+
 		return jsonify({'result': success, ' content': new_bid.to_json()})
 
 #no need for update bid and delete bid, since we won't allow user to do that
