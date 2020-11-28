@@ -14,8 +14,12 @@ db.init_app(app)
 class Logs(db.Document):
     service = db.StringField()
     content = db.StringField()
+    timestamp = db.StringField()
+    action = db.StringField()
     def to_json(self):
         return {"service": self.service,
+                "timestamp": self.timestamp,
+                "action": self.action,
                 "content": self.content}
 
 @app.route('/', methods=['GET'])
@@ -27,11 +31,13 @@ def query_records():
     else:
         return jsonify(log.to_json())
 
-@app.route('/', methods=['PUT'])
+@app.route('/api/create_log', methods=['POST'])
 def create_log():
-    record = json.loads(request.data)
-    log = Logs(service=record['service'],
-                content=record['content'])
+
+    #record = json.loads(request.form)
+    record = request.form
+
+    log = Logs(service=record['service'],timestamp=record['timestamp'],action=record['action'],content=record['content'])
     log.save()
     return jsonify(log.to_json())
 
