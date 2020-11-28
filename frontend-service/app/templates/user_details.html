@@ -1,0 +1,88 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <title>Auction Site</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
+   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
+</head>
+
+<body>
+    <div class="request-overlay hidden" id="request-overlay"></div>
+    <div class="sr-root">
+        <div class="sr-main">
+          <header class="sr-header">
+            <div class="sr-header__logo"></div>
+          </header>
+          <div class="sr-payment-summary payment-view">
+            <h1 class="order-amount">{{ user_details.username }} </h1>
+            <div class="sr-legal-text" style="text-align: left;">
+                <hr>
+                <h5>User details</h5>   
+            </div>
+          </div>
+          <div class="pricing-option">
+              <form method="POST" action="{{ url_for('routes.user_update', username=session.get('username')) }}">
+                <h5>Email:</h5>
+                <input type="text" name="email" value="{{user_details.email}}" >
+                <h5>Address:</h5>
+                <input type="text" name="address_1" value="{{user_details.address_1}}" >
+                <h5>Address 2:</h5>
+                <input type="text" name="address_2" value="{{user_details.address_2}}" >
+                <h5>City:</h5>
+                <input type="text" name="address_city" value="{{user_details.address_city}}" >
+                <h5>State:</h5>
+                <input type="text" name="address_state" value="{{user_details.address_state}}" > 
+                <h5>Zip:</h5>
+                <input type="text" name="address_zip" value="{{user_details.address_zip}}" >
+                <h5>Is Admin:</h5>
+                <select name="is_admin">
+                  <option value="FALSE" selected>No</option>
+                  <option value="TRUE" {% if user_details.is_admin %} selected {% endif %} >Yes</option>
+                </select>
+                <h5>Status</h5>
+                <select name="status">
+                    <option value="active" {% if user_details.status=='active' %} selected {% endif %} >Active</option>
+                    <option value="suspended" {% if user_details.status=='suspended' %} selected {% endif %} >Suspended</option>
+                    <option value="deleted" {% if user_details.status=='deleted' %} selected {% endif %} >Deleted</option>
+
+                </select>
+                
+
+                <button
+                    type="submit"
+                    style="width: 100%"
+                >
+                <span id="button-text" >Save</span>
+                </button>
+            </form>
+          </div>
+
+          
+        </div>
+      </div>
+ 
+    <!-- End Container-->
+    </div>
+
+    <!-- JQuery
+    ================================================== -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    
+    <!-- Mask (For Phone Numbers)
+    ================================================== -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.mask.js') }}"></script>
+
+    <!-- IN2L
+    ================================================== -->
+    <script>
+    </script>
+</body>
+</html>
