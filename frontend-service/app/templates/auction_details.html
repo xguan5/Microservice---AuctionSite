@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -11,7 +10,7 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
-
+   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
 </head>
 
 <body>
@@ -22,38 +21,55 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">Auction </h1>
+            <h1 class="order-amount">{% if auction %} {{ auction.name }} {% else %} New Auction {% endif %}</h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
-                <h5>Auction details</h5>   
-
+                {% if auction %}
+                <h5>{{ auction.item }} </h5>   
+                Started: {{ auction.start_time }}
+                {% endif %}
             </div>
           </div>
-          <div class="pricing-option">
-              <h1>{{ auction_details.name }}</h1>
-              <hr>
-              <ul>
-                  <li>Item: {{ auction_details.item }}</li>
-                  <li>Started: {{ auction_details.start_time }}</li>
-                  <li>Current Bid: ${{ auction_details.current_bid }}</li>
-                  <li>Buy Now Price: ${{ auction_details.buy_now_price }} </li>
-                  <li>Auction Ends: {{ auction_details.end_time }} </li>
-              </ul>
 
-                <input type="number" name="bid_amount">
+          <div class="pricing-option">
+              <form method="POST" action="{{ url_for('routes.create_auction') }}">
+                <h3>Item Details</h3>
+                <hr>
+                <h5>Name:</h5>
+                <input type="text" name="name" value="{{ item.name }} " >
+                <h5>Description:</h5>
+                <input type="text" name="description" value="{{ item.description }} " >
+                <h5>Category:</h5>
+                <input type="text" name="category" value="{{ item.category }} " >
+                {% for flag in item.flags %}
+                <h5>{{ flag }}</h5>
+                {% endfor %}
                 
-                <a 
-                    href=""
+                <h3>Auction Details</h3>
+                <hr>
+                <h5>Name:</h5>
+                <input type="text" name="auction_name" value="{{ auction.name }} " >
+                <h5>Start Bid Price:</h5>
+                <input type="number" name="start_bid_price" value="{{ auction.start_bid_price }} " >
+                <h5>Current Bid:</h5>
+                <input type="number" name="current_bid" value="{{ auction.current_bid }} " >
+                <h5>Bid Increment:</h5>
+                <input type="number" name="inc_bid_price" value="{{ auction.inc_bid_price }} " >
+                <h5>Buy Now Price:</h5>
+                <input type="text" name="buy_now_price" value="{{ auction.buy_now_price }}" >
+                <h5>Start Time:</h5>
+                <input type="text" name="start_time" value="{{ auction.start_time }}" >
+                <h5>End Time:</h5>
+                <input type="text" name="end_time" value="{{ auction.end_time }}" >
+                <input type="text" style="display: none" name="creator" value="{{session.username}}">
+
+                <button
+                    type="submit"
                     style="width: 100%"
                 >
-                    <span id="button-text" >Bid</span>
-                </a>
-                <a 
-                    href=""
-                    style="width: 100%"
-                ><br>
-                    <span id="button-text" style="margin-top: 10px">Buy Now</span>
-                </a>
+                <span id="button-text" >Save</span>
+                </button>
+            </form>
           </div>
 
           

@@ -20,6 +20,7 @@ def check_login():
 # Home, display list of auctions
 #*********************************************************************
 @bp.route('/', methods=['GET'])
+@bp.route('/auction', methods=['GET'])
 def auction_list():
     print(session)
 
@@ -28,21 +29,42 @@ def auction_list():
 
     auction_list = auctions.get_all_auctions()
 
-    print(auction_list)
-
     template = render_template('auction_list.html', 
         auction_list=auction_list
     )
     
     return template
 
-@bp.route('/auction_details/<auction_id>', methods=['GET'])
+@bp.route('/auction/create', methods=['GET', 'POST'])
+def create_auction():
+    error = None
+    auction=None
+    item=None
+
+    print(request.form)
+
+    if request.method == 'POST':
+        auction = request.form
+        item = items.create_item()
+        auction_result = auctions.create_auction(auction=request.form)
+
+        if auction_result.get('result'):
+            return redirect(url_for('auction', auction_id=auction_result['auction_id']))
+
+        else:
+            error = auction_result.get('content')
+
+    template = render_template('auction_details.html', auction=auction, item=item, error=error)
+
+    return template
+
+@bp.route('/auction/<auction_id>', methods=['GET'])
 def get_auction_details(auction_id):
 
     auction_details = auctions.get_auction_details(auction_id)
 
     template = render_template('auction_details.html', 
-        auction_details=auction_details.get('content')
+        auction=auction_details.get('content')
     )
     
     return template

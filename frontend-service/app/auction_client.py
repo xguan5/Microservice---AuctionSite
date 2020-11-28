@@ -24,3 +24,13 @@ def get_auction_details(auction_id):
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
+def create_auction(data):
+
+    url = 'http://{}:{}/api/auction/create'.format(get_ip(), get_port())
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
