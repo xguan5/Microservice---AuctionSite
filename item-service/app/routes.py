@@ -37,7 +37,7 @@ def create_item():
 	if 'flag' in content.keys():
 		flag = content['flag']
 
-	new_item = models.Item(name,description)
+	new_item = models.Item(name,description, category)
 
 	models.db.session.add(new_item)
 	models.db.session.commit()

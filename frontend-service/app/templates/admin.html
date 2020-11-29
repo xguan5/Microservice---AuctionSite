@@ -46,6 +46,15 @@
             </form>
           </div>
 
+          <div class="pricing-option">
+            <form method="POST" action="{{ url_for('routes.category_update') }}">
+              <h3>Flagged Items</h3>
+              <hr>
+              {% for flag in flags %}
+              <h5>Flag: {{ flag.name }} </h5>
+              {% endfor %}
+        </div>
+
           
         </div>
       </div>

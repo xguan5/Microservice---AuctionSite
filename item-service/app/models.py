@@ -29,9 +29,10 @@ class Item(db.Model):
     flag_id = db.Column(db.Integer, db.ForeignKey('flag.id'))
 
 
-    def __init__(self,name,description):
+    def __init__(self,name,description, category_id=None):
         self.name = name
         self.description = description
+        self.category_id=category_id
 
     def to_json(self):
         return {

@@ -21,17 +21,48 @@ def check_login():
 # Home, display list of auctions
 #*********************************************************************
 @bp.route('/', methods=['GET'])
-@bp.route('/auction', methods=['GET'])
-def auction_list():
-    print(session)
+@bp.route('/auction_list', methods=['GET'])
+@bp.route('/auction_list/<sort>', methods=['GET', 'POST'])
+def auction_list(sort='start_time'):
 
     if not check_login():
         return redirect( url_for('routes.login') )
 
     auction_list = auctions.get_all_auctions()
+    categories = items.get_all_categories()
+    for auction in auction_list:
+        auction['item'] = items.get_item_details(auction['item'])['result']
+        auction['current_bid'] = auctions.get_highest_bid(auction['id'])['max_bid']
+        for category in categories:
+            if category['id'] == auction['item']['category']:
+                auction['item']['category_details'] = category
+                print(auction)
+                break
+            auction['item']['category_details'] = {
+                'id': None,
+                'name': None
+            }
+
+    if request.form.get('search_term'):
+        search_term = request.form.get('search_term')
+    else:
+        search_term = False
+
+    auction_list = sorted(auction_list, key = lambda i: i[sort])
+
+    return_list = []
+    for auction in auction_list:
+        if search_term:
+            if auction['item']['category_details']['name'] and search_term.lower() in auction['item']['category_details']['name'].lower():
+                return_list.append(auction)
+            elif auction['item']['name'].lower() and search_term in auction['item']['name'].lower():
+                return_list.append(auction)
+        else:
+            return_list.append(auction)
 
     template = render_template('auction_list.html', 
-        auction_list=auction_list
+        auction_list=return_list,
+        sort=sort
     )
     
     return template
@@ -44,18 +75,50 @@ def create_auction():
 
     print(request.form)
 
+    categories = items.get_all_categories()
+
     if request.method == 'POST':
-        auction = request.form
-        item = items.create_item()
-        auction_result = auctions.create_auction(auction=request.form)
+        try:
+            start_datetime = datetime.datetime.combine(datetime.datetime.strptime(request.form.get('start_date'), '%Y-%m-%d'), datetime.datetime.strptime(request.form.get('start_time'), '%H:%M').time()) 
+            end_datetime = start_datetime + datetime.timedelta(hours=int(request.form['duration']))
+        except Exception as e:
+            return render_template('create_auction.html', auction=auction, item=item, categories=categories, error='Invalid Start Time: %s' % str(e))
+
+        if request.form['new_category'] and request.form['new_category'] != '':
+            category_response = items.create_category(request.form['new_category'])
+            category = category_response['result']['id']
+        else:
+            raise ValueError('hmm')
+            category = request.form['category']
+            
+        item_data = {
+            'name': request.form['item_name'],
+            'description': request.form['item_description'],
+            'name': request.form['item_name'],
+            'category': category
+        }
+
+        item_result = items.create_item(item_data)
+
+        auction_data = {
+            'name': request.form['auction_name'],
+            'buy_now_price': request.form['buy_now_price'],
+            'start_bid_price': request.form['start_bid_price'],
+            'inc_bid_price': request.form['inc_bid_price'],
+            'start_time': start_datetime,
+            'end_time': end_datetime,
+            'creator': session.get('username'),
+            'item': item_result['result']['id']
+        }
+
+        auction_result = auctions.create_auction(auction_data)
 
         if auction_result.get('result'):
-            return redirect(url_for('auction', auction_id=auction_result['auction_id']))
-
+            return get_auction_details(auction_id=auction_result['content']['id'])
         else:
             error = auction_result.get('content')
 
-    template = render_template('auction_details.html', auction=auction, item=item, error=error)
+    template = render_template('create_auction.html', auction=auction, item=item, categories=categories, error=error)
 
     return template
 
@@ -105,14 +168,20 @@ def end_auction(auction_id):
     return get_auction_details(auction_id=auction_id)
 
 @bp.route('/auction/add-to-watchlist/<auction_id>', methods=['GET', 'POST'])
-def add_to_watchlist():
+def add_to_watchlist(auction_id):
 
     response = users.add_to_watchlist(session.get('username', auction_id))
+
+    return get_auction_details(auction_id=auction_id)
+
+@bp.route('/auction/flag-item/<item_id>/<auction_id>', methods=['GET', 'POST'])
+def flag_item(item_id, auction_id):
+
+    response = items.flag_item(item_id)
 
     print(response)
 
     return get_auction_details(auction_id=auction_id)
-
 
 @bp.route('/auction/<auction_id>', methods=['GET'])
 def get_auction_details(auction_id, bid_error=None):
@@ -120,8 +189,17 @@ def get_auction_details(auction_id, bid_error=None):
     auction_details = auctions.get_auction_details(auction_id)
     item_details = items.get_item_details(auction_details['result']['item'])
     categories = items.get_all_categories()
-    item_details['category_details'] = categories[item_details['result']['category']]
+
+    for category in categories:
+        if category['id'] == item_details['result']['category']:
+            item_details['result']['category_details'] = category
+            break
+        item_details['result']['category_details'] = {
+            'id': None,
+            'name': None
+        }
     highest_bid = auctions.get_highest_bid(auction_id)
+
     try:
         next_bid = int(highest_bid['max_bid'] + auction_details['result']['inc_bid_price'])
     except Exception as e:
@@ -221,8 +299,10 @@ def admin():
     if request.method == 'POST':
         categories = request.form
 
+    flags = items.get_all_flags()
     categories = items.get_all_categories()
-    template = render_template('admin.html', categories=categories)
+    print(flags)
+    template = render_template('admin.html', categories=categories, flags=flags)
 
     return template
 

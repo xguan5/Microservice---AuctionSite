@@ -21,60 +21,60 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">{% if auction %} {{ auction.name }} {% else %} New Auction {% endif %}</h1>
+            <h1 class="order-amount">Add Auction
+           
+          </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
-                {% if auction %}
-                <h5>{{ auction.item }} </h5>   
-                Started: {{ auction.start_time }}
-                {% endif %}
+                <h5>Add new Auction and Item </h5>   
+                {% if error %}<h3 style="color: red">{{ error }}</h3> {% endif %}
             </div>
           </div>
 
           <div class="pricing-option">
-              <form method="POST" action="{{ url_for('routes.create_auction') }}">
-                <h3>Item Details</h3>
-                <hr>
-                <h5>Name:</h5>
-                <input type="text" name="name" value="{{ item.name }} " >
-                <h5>Description:</h5>
-                <input type="text" name="description" value="{{ item.description }} " >
-                <h5>Category:</h5>
-                {% for category in categories %}
-                {% endfor %}
-                <input type="text" name="category" value="{{ item.category }} " >
-                {% if session.is_admin %}
-                {% for flag in item.flags %}
-                <h5>{{ flag }}</h5>
-                {% endfor %}
-                {% endif %}
-                
-                <h3>Auction Details</h3>
+            <form method="POST" action="{{ url_for('routes.create_auction') }}">
+              <h3>Item Details</h3>
+              <hr>
+              <h5>Name:</h5>
+              <input type="text" name="item_name" value="{{ item.name }} " >
+              <h5>Description:</h5>
+              <input type="text" name="item_description" value="{{ item.description }} " >
+              <h5>Category:</h5>
+              <select name="category" >
+              {% for category in categories %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
+              <h5>Add New:</h5>
+              <input type="text" name="new_category"  >
+
+                <h3 style="margin-top: 30px;">Auction Details</h3>
                 <hr>
                 <h5>Name:</h5>
                 <input type="text" name="auction_name" value="{{ auction.name }} " >
+                <h5>Status:</h5>
+                <input type="text" name="status" value="{{ auction.status }} " >
                 <h5>Start Bid Price:</h5>
-                <input type="number" name="start_bid_price" value="{{ auction.start_bid_price }} " >
-                <h5>Current Bid:</h5>
-                <input type="number" name="current_bid" value="{{ auction.current_bid }} " >
+                <input type="text" name="start_bid_price" value="{{ auction.start_bid_price }} " >
                 <h5>Bid Increment:</h5>
-                <input type="number" name="inc_bid_price" value="{{ auction.inc_bid_price }} " >
+                <input type="text" name="inc_bid_price" value="{{ auction.inc_bid_price }} " >
                 <h5>Buy Now Price:</h5>
                 <input type="text" name="buy_now_price" value="{{ auction.buy_now_price }}" >
+                <h5>Start Date:</h5>
+                <input type="date" name="start_date" >
                 <h5>Start Time:</h5>
-                <input type="text" name="start_time" value="{{ auction.start_time }}" >
-                <h5>End Time:</h5>
-                <input type="text" name="end_time" value="{{ auction.end_time }}" >
+                <input type="time" name="start_time" >
+                <h5>Auction Length (hours):</h5>
+                <input type="text" name="duration" >
                 <input type="text" style="display: none" name="creator" value="{{session.username}}">
 
                 <button
                     type="submit"
                     style="width: 100%"
                 >
-                <span id="button-text" >Save</span>
+                <span id="button-text" >Save Auction</span>
                 </button>
             </form>
-          </div>
 
           
         </div>

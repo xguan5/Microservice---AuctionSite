@@ -57,3 +57,35 @@ def get_item_details(id):
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
+def create_item(data):
+
+    url = 'http://{}:{}/api/item/create'.format(get_ip(), get_port())
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def get_all_flags():
+
+    url = 'http://{}:{}/api/flags'.format(get_ip(), get_port())
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def flag_item(item_id):
+
+    url = 'http://{}:{}/api/flag/create'.format(get_ip(), get_port(), item_id)
+
+    data = {'name': 'Flagged by User'}
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
