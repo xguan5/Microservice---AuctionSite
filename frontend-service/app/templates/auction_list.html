@@ -43,7 +43,7 @@
                   <li>Auction Ends: {{ auction.end_time }} </li>
               </ul>
                 <a 
-                    href="{{ url_for('routes.get_auction_details', auction_id=1) }}"
+                    href="{{ url_for('routes.get_auction_details', auction_id=auction.id) }}"
                     style="width: 100%"
                 >
                 <span id="button-text" >Open</span>

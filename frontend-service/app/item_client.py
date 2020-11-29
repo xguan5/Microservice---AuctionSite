@@ -21,3 +21,39 @@ def get_all_categories():
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
+def update_category(id, name):
+
+    url = 'http://{}:{}/api/category/{}'.format(get_ip(), get_port(),id)
+
+    data = {'name': name}
+
+    print(url, data)
+
+    response = requests.put(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def create_category(name):
+
+    url = 'http://{}:{}/api/category/create'.format(get_ip(), get_port())
+
+    data = {'name': name}
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+
+def get_item_details(id):
+    url = 'http://{}:{}/api/item/{}'.format(get_ip(), get_port(), id)
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()

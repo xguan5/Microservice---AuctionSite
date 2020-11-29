@@ -105,9 +105,8 @@ def update_category(id):
 	category = models.Category.query.get(id)
 
 	content = request.form
-	if 'name' in content.keys():
-		name = content['name']
-		item.name = name
+	name = content['name']
+	category.name = name
 
 	models.db.session.commit()
 

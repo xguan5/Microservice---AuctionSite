@@ -59,13 +59,56 @@ def create_auction():
 
     return template
 
+@bp.route('/auction/update/<auction_id>', methods=['GET', 'POST'])
+def update_auction(auction_id):
+
+    return redirect(url_for('routes.get_auction_details', auction_id=auction_id))
+
+@bp.route('/item/update/<item_id>/<auction_id>', methods=['GET', 'POST'])
+def update_item(item_id, auction_id):
+
+    return redirect(url_for('routes.get_auction_details', auction_id=auction_id))
+
+@bp.route('/auction/bid/<auction_id>', methods=['GET', 'POST'])
+def place_bid(auction_id):
+
+    amount = request.form.get('bid_amount')
+
+    response = auctions.place_bid(auction_id, session.get('username'), amount, datetime.datetime.now())
+
+    if response['result'] == False:
+        bid_error = response['content']
+    else:
+        bid_error = None
+
+    return get_auction_details(auction_id=auction_id, bid_error=bid_error)
+
+@bp.route('/auction/buy-now/<auction_id>', methods=['GET', 'POST'])
+def buy_now():
+
+    return get_auction_details(auction_id=auction_id)
+
+@bp.route('/auction/add-to-watchlist/<auction_id>', methods=['GET', 'POST'])
+def add_to_watchlist():
+
+    return get_auction_details(auction_id=auction_id)
+
+
 @bp.route('/auction/<auction_id>', methods=['GET'])
-def get_auction_details(auction_id):
+def get_auction_details(auction_id, bid_error=None):
 
     auction_details = auctions.get_auction_details(auction_id)
+    item_details = items.get_item_details(auction_details['result']['item'])
+    categories = items.get_all_categories()
+    item_details['category_details'] = categories[item_details['result']['category']]
+    highest_bid = auctions.get_highest_bid(auction_id)
 
     template = render_template('auction_details.html', 
-        auction=auction_details.get('content')
+        auction=auction_details.get('result'),
+        item=item_details.get('result'),
+        categories=categories,
+        highest_bid=highest_bid['max_bid'],
+        bid_error=bid_error
     )
     
     return template
@@ -133,7 +176,7 @@ def user_update(username):
 
     user_details = users.update_user(username, request.form)
 
-    return redirect(url_for('routes.user_details', username=username))
+    return user_details(username=username)
     
 @bp.route('/user/<username>',methods=['POST', 'GET'])
 def user_details(username):
@@ -156,7 +199,20 @@ def admin():
         categories = request.form
 
     categories = items.get_all_categories()
-    print(categories)
     template = render_template('admin.html', categories=categories)
 
     return template
+
+@bp.route('/admin/category-update', methods=['GET', 'POST'])
+def category_update():
+
+    print(request.form)
+
+    for key in request.form:
+        if key == 'new_category':
+            if request.form[key] and request.form[key] != "":
+                items.create_category(request.form[key])
+        else: 
+            items.update_category(key, request.form[key])
+
+    return admin()
