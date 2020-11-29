@@ -58,3 +58,12 @@ def place_bid(id, user_id, amount, placed_time):
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
+def update_auction(auction_id, data):
+    url = 'http://{}:{}/api/auction/{}'.format(get_ip(), get_port(), auction_id)
+
+    response = requests.put(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()

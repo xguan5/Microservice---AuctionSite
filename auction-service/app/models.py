@@ -31,9 +31,9 @@ class Auction(db.Model):
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     end_time = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate = datetime.utcnow)
-    creator_id = db.Column(db.Integer)
-    manager_id = db.Column(db.Integer)
-    winner_id = db.Column(db.Integer)
+    creator_id = db.Column(db.String)
+    manager_id = db.Column(db.String)
+    winner_id = db.Column(db.String)
     item_id = db.Column(db.Integer)
     biddings = db.relationship('Bidding')
 

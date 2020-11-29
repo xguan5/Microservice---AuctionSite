@@ -90,8 +90,17 @@ def place_bid(auction_id):
 
 @bp.route('/auction/buy-now/<auction_id>', methods=['GET', 'POST'])
 def buy_now():
+    return get_auction_details(auction_id=auction_id)
 
+@bp.route('/auction/end-auction/<auction_id>', methods=['GET', 'POST'])
+def end_auction(auction_id):
 
+    data = {
+        'status': 'ended',
+        'end_time': datetime.datetime.now()
+    }
+
+    auctions.update_auction(auction_id, data)
 
     return get_auction_details(auction_id=auction_id)
 

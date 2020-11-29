@@ -21,12 +21,41 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">{{ auction.name }}</h1>
+            <h1 class="order-amount">{{ auction.name }}
+           
+          </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
                 <h5>{{ item.name }} </h5>   
                 Started: {{ auction.start_time }}
             </div>
+          </div>
+
+          {% if session.get('username') == auction. %}
+          <div class="pricing-option">
+            <form method="POST" action="{{ url_for('routes.update_item', item_id=item.id, auction_id=auction.id) }}">
+              <h3>Item Details</h3>
+              <hr>
+              <h5>Name:</h5>
+              <input type="text" name="name" value="{{ item.name }} " >
+              <h5>Description:</h5>
+              <input type="text" name="description" value="{{ item.description }} " >
+              <h5>Category:</h5>
+              <select name="category" >
+              {% for category in categories %}
+              <option value="{{ category.id }}" {% if category.id == item.category %} selected {% endif %}>{{ category.name }}</option>
+              {% endfor %}
+              </select>
+              {% for flag in item.flags %}
+              <h5>{{ flag }}</h5>
+              {% endfor %}
+              <button
+                  type="submit"
+                  style="width: 100%"
+              >
+              <span id="button-text" >Save Item</span>
+              </button>
+            </form>
           </div>
 
           <div class="pricing-option">
@@ -49,39 +78,22 @@
               <form method="POST" action="{{ url_for('routes.add_to_watchlist', item_id=item.id, auction_id=auction.id) }}">
                   <button type="submit" style="width: 100%"><span id="button-text" >Add to Watch List</span></button>
               </form>
-          </div>
-
-          <div class="pricing-option">
-              <form method="POST" action="{{ url_for('routes.update_item', item_id=item.id, auction_id=auction.id) }}">
-                <h3>Item Details</h3>
-                <hr>
-                <h5>Name:</h5>
-                <input type="text" name="name" value="{{ item.name }} " >
-                <h5>Description:</h5>
-                <input type="text" name="description" value="{{ item.description }} " >
-                <h5>Category:</h5>
-                <select name="category" >
-                {% for category in categories %}
-                <option value="{{ category.id }}" {% if category.id == item.category %} selected {% endif %}>{{ category.name }}</option>
-                {% endfor %}
-                </select>
-                {% for flag in item.flags %}
-                <h5>{{ flag }}</h5>
-                {% endfor %}
-                <button
-                    type="submit"
-                    style="width: 100%"
-                >
-                <span id="button-text" >Save Item</span>
-                </button>
+              {% if session.is_admin %}
+              <form method="POST" action="{{ url_for('routes.end_auction', auction_id=auction.id) }}">
+                <button type="submit" style="width: 100%"><span id="button-text" >Admin - End Auction</span></button>
               </form>
-            </div>
+              {% endif %}
+          </div>
+          
+
             <div class="pricing-option">
               <form method="POST" action="{{ url_for('routes.update_auction', auction_id=auction.id) }}">
                 <h3>Auction Details</h3>
                 <hr>
                 <h5>Name:</h5>
                 <input type="text" name="auction_name" value="{{ auction.name }} " >
+                <h5>Status:</h5>
+                <input type="text" name="status" value="{{ auction.status }} " >
                 <h5>Start Bid Price:</h5>
                 <input type="text" name="start_bid_price" value="{{ auction.start_bid_price }} " >
                 <h5>Bid Increment:</h5>
