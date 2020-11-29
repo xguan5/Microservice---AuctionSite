@@ -51,6 +51,7 @@ class Auction(db.Model):
 
     def to_json(self):
         return {
+            'id': self.id,
             'name': self.name,
             'creator': self.creator_id,
             'item': self.item_id,

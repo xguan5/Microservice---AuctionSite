@@ -9,6 +9,7 @@ import requests
 from . import user_client as users
 from . import auction_client as auctions
 from . import authentication_client as auth
+from . import item_client as items
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -78,7 +79,7 @@ def login():
 
     if request.method == 'POST':
         result = auth.login(request.form['username'], request.form['password'])
-        print(result)
+        print('Hey, ', result)
         if result.get('result') == True:
             session['username'] = request.form['username']
             session['is_admin'] = result['content']
@@ -146,4 +147,16 @@ def user_details(username):
         user_details=user_details.get('content')
     )
     
+    return template
+
+
+@bp.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        categories = request.form
+
+    categories = items.get_all_categories()
+    print(categories)
+    template = render_template('admin.html', categories=categories)
+
     return template

@@ -22,7 +22,8 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h3 class="order-amount"><a href="{{ url_for('routes.user_details', username=session.get('username')) }}"> {{ session.get('username') }} </a> - <a href="{{ url_for('routes.logout') }}"> logout </a></h3>
+            <h3 class="order-amount"><a href="{{ url_for('routes.user_details', username=session.get('username')) }}"> {{ session.get('username') }} </a> - <a href="{{ url_for('routes.logout') }}"> logout </a>
+              {% if session.is_admin %}  - <a href="{{ url_for('routes.admin') }}"> Admin Console </a> {% endif %}</h3>
             <hr>
             <h1 class="order-amount">Auction List</h1>
             <div class="sr-legal-text" style="text-align: left;">

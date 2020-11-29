@@ -35,6 +35,7 @@ class Item(db.Model):
 
     def to_json(self):
         return {
+            'id': self.id,
             'name': self.name,
             'description': self.description,
             'category': self.category_id,
@@ -53,7 +54,8 @@ class Category(db.Model):
 
     def to_json(self):
         return {
-            'name': self.name,
+            'id': self.id,
+            'name': self.name
         }
 
 class Flag(db.Model):
@@ -67,7 +69,8 @@ class Flag(db.Model):
 
     def to_json(self):
         return {
-            'name': self.name,
+            'id': self.id,
+            'name': self.name
         }
 
 

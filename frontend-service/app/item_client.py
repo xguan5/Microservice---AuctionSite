@@ -12,11 +12,11 @@ delivery: 5006
 notification: 5007
 """
 
-def create_user(data):
+def get_all_categories():
 
-    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/categories'.format(get_ip(), get_port())
 
-    response = requests.post(url=url, data=data)
+    response = requests.get(url=url)
 
     if response.status_code == 200:
         print(response.json())
