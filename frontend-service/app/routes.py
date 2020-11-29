@@ -71,10 +71,15 @@ def update_item(item_id, auction_id):
 
 @bp.route('/auction/bid/<auction_id>', methods=['GET', 'POST'])
 def place_bid(auction_id):
-
-    amount = request.form.get('bid_amount')
+    
+    try:
+        amount = int(request.form.get('bid_amount'))
+    except Exception as e:
+        return get_auction_details(auction_id=auction_id, bid_error="Invalid Bid Format")
 
     response = auctions.place_bid(auction_id, session.get('username'), amount, datetime.datetime.now())
+
+    print(response)
 
     if response['result'] == False:
         bid_error = response['content']
@@ -86,10 +91,16 @@ def place_bid(auction_id):
 @bp.route('/auction/buy-now/<auction_id>', methods=['GET', 'POST'])
 def buy_now():
 
+
+
     return get_auction_details(auction_id=auction_id)
 
 @bp.route('/auction/add-to-watchlist/<auction_id>', methods=['GET', 'POST'])
 def add_to_watchlist():
+
+    response = users.add_to_watchlist(session.get('username', auction_id))
+
+    print(response)
 
     return get_auction_details(auction_id=auction_id)
 
@@ -102,13 +113,19 @@ def get_auction_details(auction_id, bid_error=None):
     categories = items.get_all_categories()
     item_details['category_details'] = categories[item_details['result']['category']]
     highest_bid = auctions.get_highest_bid(auction_id)
+    try:
+        next_bid = int(highest_bid['max_bid'] + auction_details['result']['inc_bid_price'])
+    except Exception as e:
+        print(e)
+        next_bid = 0
 
     template = render_template('auction_details.html', 
         auction=auction_details.get('result'),
         item=item_details.get('result'),
         categories=categories,
         highest_bid=highest_bid['max_bid'],
-        bid_error=bid_error
+        bid_error=bid_error,
+        next_bid=next_bid
     )
     
     return template
@@ -118,11 +135,8 @@ def login():
 
     error = None
 
-    print(request.form)
-
     if request.method == 'POST':
         result = auth.login(request.form['username'], request.form['password'])
-        print('Hey, ', result)
         if result.get('result') == True:
             session['username'] = request.form['username']
             session['is_admin'] = result['content']

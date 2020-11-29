@@ -66,3 +66,13 @@ def get_user_details(username):
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
+def add_to_watchlist(username, auction_id):
+
+    url = 'http://{}:{}/add_to_watchlist/{}&{}'.format(get_ip(), get_port(), username, auction_id)
+
+    response = requests.get(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()

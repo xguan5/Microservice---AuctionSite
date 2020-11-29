@@ -67,7 +67,7 @@ class Auction(db.Model):
 
 class Bidding(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.String)
     auction_id = db.Column(db.Integer, db.ForeignKey('auction.id') )
     bid_price = db.Column(db.Float)
     bid_placed = db.Column(db.DateTime, default=datetime.utcnow)
