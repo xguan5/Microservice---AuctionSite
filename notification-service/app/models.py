@@ -19,21 +19,25 @@ def create_tables(app):
 
 
 class Email(db.model):
+    e_id = db.column(db.Integer, primary_key=True)
     sender = db.column(db.String(255))
     recipient = db.column(db.String(255))
     subject = db.column(db.String(255))
     msg = db.Column(db.Text(20000))
+    needs_reply = db.Column(db.Boolean, default=True)
 
-    def __init__(self, sender, recipient, subject, msg):
+    def __init__(self, sender, recipient, subject, msg, needs_reply):
         self.sender = sender
         self.recipient = recipient
         self.subject = subject
         self.msg = msg
+        self.needs_reply = needs_reply
 
-    def return_profile(self):
+    def return_email(self):
         return {
             'sender': self.sender,
             'recipient': self.recipient,
             'subject': self.subject,
-            'message': self.msg
+            'message': self.msg,
+            'needs_reply': self.needs_reply
         }

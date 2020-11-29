@@ -54,7 +54,7 @@ def send_auto_msg():
 
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
         server.login("teambottleneck@gmail.com", password)
-        server.sendmail(sender, recipient, msg)
+        server.sendmail(sender, recipient, msg) # need to figure out where subject fits??
 
 
 
@@ -96,10 +96,62 @@ def receive_messages():
                 else:
                     mail_content = message.get_payload()
 
+                new_email = models.Email(mail_from, "teambottleneck@gmail.com",
+                                         mail_subject, mail_content)
+                models.db.session.add(new_email)
+                models.db.session.commit()
+
+    return True
+
 ##############################
 # REPLY TO CUSTOMER MESSAGES #
 ##############################
+@bp.route('/api/get_msg/<msg_id:int>', methods=['GET'])
+def get_message(msg_id):
+    """
+    Returns a single message given its message ID.
+    """
+    msg = models.Email.query.get(msg_id)
+    return jsonify(msg.return_email())
 
+
+@bp.route('/api/get_all_msg', methods=['GET'])
+def get_messages():
+    """
+    Returns all messages that require a reply.
+    """
+    data = []
+    for row in models.Email.query.filter_by(needs_reply=True):
+        data.append(row.return_email())
+
+    return jsonify(data)
+
+
+@bp.route('/api/reply_msg/<msg_id:int>', methods=['GET'])
+def reply_to_message(msg_id):
+    """
+    Sends a reply to a specific message.
+    """
+
+    content = request.form
+
+    original_email = json.loads(get_message(msg_id))
+
+    sender = "teambottleneck@gmail.com"
+    recipient = original_email["sender"]
+    reply_text = content["reply_text"]
+    msg = reply_text + "\n\n" + original_email["message"]
+    subject = "RE: " + original_email["subject"]
+
+    port = 465  # For SSL
+    password = "bottleneck6!"
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+        server.login("teambottleneck@gmail.com", password)
+        server.sendmail(sender, recipient, msg) # need to add subject!
+    
 
 # ###########
 # # ACCOUNT #
