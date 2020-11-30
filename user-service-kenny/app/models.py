@@ -27,9 +27,7 @@ class User(db.Model):
     address_city = db.Column(db.String(255))
     address_state = db.Column(db.String(2))
     address_zip = db.Column(db.String(5))
-    status = db.Column(db.Enum(["active",
-                                "suspended",
-                                "deleted"]))
+    status = db.Column(db.String(10))
 
     def __init__(self, username, email, address_1, address_2, address_city,
                  address_state, address_zip, status="active", role="basic"):
@@ -63,6 +61,7 @@ class User(db.Model):
 
 
 class Rating(db.Model):
+    rating_id = db.column(db.Integer, primary_key=True)
     rater_id = db.Column(db.String(255))
     recipient_id = db.Column(db.String(255))
     rating = db.Column(db.Integer)

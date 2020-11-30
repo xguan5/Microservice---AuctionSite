@@ -25,15 +25,8 @@ def send_auto_msg():
 
     auto_messages = {
         'watchlist match': 'A new item that matches your watchlist has been posted.\nID: {}',
-        'new bid': 'A buyer has bid on your item!\n'
-                   'Item name: {}\n'
-                   'Auction ID: {}\n'
-                   'Bid amount: {}'
-        'outbid': 'Another buyer has outbid you on an auction'
-                  'Item name: {}\n'
-                  'Auction ID: {}\n'
-                  'Your bid amount: {}\n'
-                  'Their bid amount: {}'
+        'new bid': 'A buyer has bid on your item!\nItem name: {}\nAuction ID: {}\nBid amount: {}',
+        'outbid': 'Another buyer has outbid you on an auction\nItem name: {}\nAuction ID: {}\nYour bid amount: {}\nTheir bid amount: {}'
     }
 
     auto_subjects = {
@@ -81,7 +74,7 @@ def receive_messages():
 
     for i in mail_ids:
         status, data = mail.fetch(i, '(RFC822)')
-        
+
         for response_part in data:
             if isinstance(response_part, tuple):
                 message = email.message_from_bytes(response_part[1])
@@ -151,7 +144,7 @@ def reply_to_message(msg_id):
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
         server.login("teambottleneck@gmail.com", password)
         server.sendmail(sender, recipient, msg) # need to add subject!
-    
+
 
 # ###########
 # # ACCOUNT #
