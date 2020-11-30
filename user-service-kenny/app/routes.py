@@ -54,14 +54,16 @@ def create_user():
 
 
 # View a user's profile
-@bp.route('/api/view_profile/<u_id>', methods=['GET'])
-def view_user(u_id):
+@bp.route('/api/view_profile/<username>', methods=['GET'])
+def view_user(username):
     """
     View a user's profile. Additional functionality if you are viewing as an
     admin, or if you are viewing your own profile.
     """
-    user = models.User.query.get(u_id)
-    return jsonify(user.return_profile())
+    user = models.User.query.filter(models.User.username.ilike(username)).first()
+    print(user)
+    print(user.return_profile())
+    return json.dumps({'result': True, 'content': user.return_profile()})
 
 
 # Update one or more pieces of info about a user

@@ -41,7 +41,16 @@ class User(db.Model):
         self.status = status
 
     def return_profile(self):
-        return self.return_account().update(self.return_address())
+        return {
+            'username': self.username,
+            'email': self.email,
+            'status': self.status,
+            'address_1': self.address_1,
+            'address_2': self.address_2,
+            'address_city': self.address_city,
+            'address_state': self.address_state,
+            'address_zip': self.address_zip
+        }
 
     def return_account(self):
         return {
