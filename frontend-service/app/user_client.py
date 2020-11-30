@@ -16,11 +16,6 @@ notification: 5007
 
 def create_user(data):
 
-    return {
-        'result': True,
-        'content': 'Success'
-    }
-
     url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
 
     response = requests.post(url=url, data=data)

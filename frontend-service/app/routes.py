@@ -255,7 +255,8 @@ def signup():
 
         user_result = users.create_user(request.form)
         credential_result = auth.create_credentials(request.form['username'], request.form['password'], is_admin)
-
+        print(user_result)
+        print(credential_result)
         if user_result.get('result') and credential_result.get('result') == True:
             result = auth.login(request.form['username'], request.form['password'])
             session['username'] = request.form['username']

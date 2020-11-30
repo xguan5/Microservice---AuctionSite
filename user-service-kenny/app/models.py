@@ -41,7 +41,7 @@ class User(db.Model):
         self.status = status
 
     def return_profile(self):
-        return self.return_account().update(self.return_address)
+        return self.return_account().update(self.return_address())
 
     def return_account(self):
         return {
@@ -61,11 +61,11 @@ class User(db.Model):
 
 
 class Rating(db.Model):
-    rating_id = db.column(db.Integer, primary_key=True)
+    rating_id = db.Column(db.Integer, primary_key=True)
     rater_id = db.Column(db.String(255))
     recipient_id = db.Column(db.String(255))
     rating = db.Column(db.Integer)
-    review = db.Column(db.Text(4000))
+    review = db.Column(db.String(4000))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __init__(self, rater_id, recipient_id, rating, review, timestamp):
