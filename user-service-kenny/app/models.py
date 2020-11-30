@@ -68,7 +68,8 @@ class Rating(db.Model):
     review = db.Column(db.String(4000))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, rater_id, recipient_id, rating, review, timestamp):
+    def __init__(self, rating_id, rater_id, recipient_id, rating, review, timestamp):
+        self.rating_id = rating_id
         self.rater_id = rater_id
         self.recipient_id = recipient_id
         self.rating = rating

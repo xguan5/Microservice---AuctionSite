@@ -34,7 +34,7 @@
             </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
-                <h5>Auctions posted now</h5>   
+                <h5>Auctions posted now - <a href="{{ url_for('routes.create_auction') }}"> Create Auction </a></h5>   
                 <hr>
                 <form method="POST" action="{{ url_for('routes.auction_list', sort=sort) }}">
                   <h3>Search</h3>
