@@ -8,9 +8,22 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 import requests
 from . import models as models
 from . import log_client as logs
+import pika
 #from pandas.io.json import json_normalize 
 
 bp = Blueprint('routes', __name__, url_prefix='/')
+
+#set up rabbitmq
+@bp.route('/add-job', methods=['POST'])
+def add_log(msg):
+    credentials = pika.PlainCredentials(username='guest', password='guest')
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
+    channel = connection.channel()
+    channel.queue_declare(queue='hello')
+    channel.basic_publish(exchange='', routing_key='hello', body=msg)
+    connection.close()
+    return f" [x] Sent " + msg
+    
 
 #get all auctions
 @bp.route('/api/auctions', methods=['GET'])
@@ -43,7 +56,10 @@ def create_auction():
 	item = content['item']
 
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
-	log_result = json.dumps(logs.create_log({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)}))
+	log_result = json.dumps({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
+
+	add_log(log_result)
+	
 
 	models.db.session.add(new_auction)
 	models.db.session.commit()
@@ -211,4 +227,7 @@ def get_auction_winner(id):
 	auction = models.Auction.query.get(id)
 	return jsonify({'result': auction.winner})
 
+#return metric of auctions within some time interval
+
+#return all active auctions
 
