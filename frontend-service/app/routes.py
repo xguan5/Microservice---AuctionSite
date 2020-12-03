@@ -13,6 +13,7 @@ from . import item_client as items
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
+
 def check_login():
     if not session.get('username'): return False
     return auth.check_login(session.get('username'))
@@ -25,6 +26,8 @@ def check_login():
 @bp.route('/auction_list/<sort>', methods=['GET', 'POST'])
 def auction_list(sort='start_time'):
 
+    print(request.form)
+
     if not check_login():
         return redirect( url_for('routes.login') )
 
@@ -36,7 +39,6 @@ def auction_list(sort='start_time'):
         for category in categories:
             if category['id'] == auction['item']['category']:
                 auction['item']['category_details'] = category
-                print(auction)
                 break
             auction['item']['category_details'] = {
                 'id': None,
@@ -48,14 +50,22 @@ def auction_list(sort='start_time'):
     else:
         search_term = False
 
+
     auction_list = sorted(auction_list, key = lambda i: i[sort])
+
+    print('CHIP ', search_term)
 
     return_list = []
     for auction in auction_list:
         if search_term:
+            print(auction['item']['category_details']['name'], ' ' )
             if auction['item']['category_details']['name'] and search_term.lower() in auction['item']['category_details']['name'].lower():
                 return_list.append(auction)
-            elif auction['item']['name'].lower() and search_term in auction['item']['name'].lower():
+            elif auction['item']['name'] and search_term.lower() in auction['item']['name'].lower():
+                return_list.append(auction)
+            elif auction['item']['description'] and search_term.lower() in auction['item']['description'].lower():
+                return_list.append(auction)
+            elif auction['name'] and search_term.lower() in auction['name'].lower():
                 return_list.append(auction)
         else:
             return_list.append(auction)

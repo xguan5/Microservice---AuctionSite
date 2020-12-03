@@ -3,11 +3,11 @@ import requests
 
 
 def get_ip():
-    auction_service_ip = "localhost"
+    auction_service_ip = "authentication-service_api_1"
     return auction_service_ip
 
 def get_port():
-    return 5002
+    return 5000
     
 def login(username, password):
     url = 'http://{}:{}/api/authentication/login'.format(get_ip(), get_port())

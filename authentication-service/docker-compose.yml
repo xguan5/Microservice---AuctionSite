@@ -1,25 +1,36 @@
 version: '3.8'
 
+
 services:
-  web:
+  api:
     build:
       context: .
     ports:
-      - 5091:5000
+      - 5002:5000
     volumes:
       - ./app:/app
+    networks:
+      - auction-network
 
   database:
     environment:
-      POSTGRES_USER: test_user
-      POSTGRES_PASSWORD: test_password
-      POSTGRES_DB: authentication
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authentication_db
     image: postgres:latest
-    container_name: authentication_postgreql
+    container_name: authentication_db
+    networks:
+      - auction-network
+
     ports:
-      - 5432:5432
+      - 6002:5432
     volumes:
       - db_volume:/var/lib/postgresql
-    
+
+networks:
+  auction-network:
+    external: true
+
 volumes:
   db_volume:
+
