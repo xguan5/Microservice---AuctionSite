@@ -3,7 +3,7 @@ import requests
 
 
 def get_ip():
-    auction_service_ip = "authentication-service_api_1"
+    auction_service_ip = "authentication"
     return auction_service_ip
 
 def get_port():

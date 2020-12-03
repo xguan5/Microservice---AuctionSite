@@ -3,11 +3,11 @@ import requests
 
 
 def get_ip():
-    auction_service_ip = "localhost"
+    auction_service_ip = "auction"
     return auction_service_ip
 
 def get_port():
-    return 5005
+    return 5000
     
 def get_all_auctions():
     url = 'http://{}:{}/api/auctions'.format(get_ip(), get_port())

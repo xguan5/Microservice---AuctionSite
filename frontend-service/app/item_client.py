@@ -2,11 +2,11 @@ from flask import session
 import requests
 
 def get_ip():
-    auction_service_ip = "localhost"
+    auction_service_ip = "item"
     return auction_service_ip
 
 def get_port():
-    return 5004
+    return 5000
 """ 
 delivery: 5006
 notification: 5007
