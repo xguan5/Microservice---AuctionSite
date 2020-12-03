@@ -25,7 +25,7 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 # ACCOUNT #
 ###########
 # Create a user
-@bp.route('/api/create_account', methods=['GET'])
+@bp.route('/api/create_account', methods=['GET', 'POST'])
 def create_user():
     """
     Create a new user and store in the database.
@@ -39,7 +39,7 @@ def create_user():
     address_city = content["address_city"]
     address_state = content["address_state"]
     address_zip = content["address_zip"]
-    status = content["status"]
+    status = 'active'
     # role = content["role"]
 
     new_user = models.User(username, email, address_1, address_2, address_city,
@@ -48,22 +48,26 @@ def create_user():
     models.db.session.add(new_user)
     models.db.session.commit()
 
-    return jsonify(new_user.return_profile())
+    print('okoay')
+
+    return json.dumps({'result': True, 'content': new_user.return_profile()})
 
 
 # View a user's profile
-@bp.route('/api/view_profile/<u_id:int>', methods=['GET'])
-def view_user(u_id):
+@bp.route('/api/view_profile/<username>', methods=['GET'])
+def view_user(username):
     """
     View a user's profile. Additional functionality if you are viewing as an
     admin, or if you are viewing your own profile.
     """
-    user = models.User.query.get(u_id)
-    return jsonify(user.return_profile())
+    user = models.User.query.filter(models.User.username.ilike(username)).first()
+    print(user)
+    print(user.return_profile())
+    return json.dumps({'result': True, 'content': user.return_profile()})
 
 
 # Update one or more pieces of info about a user
-@bp.route('/api/update_profile/<u_id:int>', methods=['GET'])
+@bp.route('/api/update_profile/<u_id>', methods=['GET'])
 def update_user(u_id):
     """
     Update information in a user profile. Can only be done with your own
@@ -94,7 +98,7 @@ def update_user(u_id):
 
 
 # Suspend a user
-@bp.route('/api/suspend_user/<u_id:int>', methods=['GET'])
+@bp.route('/api/suspend_user/<u_id>', methods=['GET'])
 def suspend_user(u_id):
     """
     Allow a user to self-suspend their account, or an admin to suspend an
@@ -110,7 +114,7 @@ def suspend_user(u_id):
 
 
 # Delete a user
-@bp.route('/api/delete_user/<u_id:int>', methods=['GET'])
+@bp.route('/api/delete_user/<u_id>', methods=['GET'])
 def delete_user(u_id):
     """
     Allow a user to self-delete their account, or an admin to delete an
@@ -129,7 +133,7 @@ def delete_user(u_id):
 # RATINGS #
 ###########
 # Rate a user
-@bp.route('/api/rate_user/<u_id_give:int>&<u_id_recv:int>', methods=['GET'])
+@bp.route('/api/rate_user/<u_id_give>&<u_id_recv>', methods=['GET'])
 def rate_user(u_id_give, u_id_recv):
     """
     Allows one user to provide a rating to another user.
@@ -155,7 +159,7 @@ def rate_user(u_id_give, u_id_recv):
 # CART #
 ########
 # Add to cart
-@bp.route('/api/add_to_cart/<u_id:int>&<auc_id:int>', methods=['GET'])
+@bp.route('/api/add_to_cart/<u_id>&<auc_id>', methods=['GET'])
 def add_to_cart(u_id, auc_id):
     """
     Allow a user to add either a victorious auction or a "buy-now" item to
@@ -171,7 +175,7 @@ def add_to_cart(u_id, auc_id):
 
 
 # Remove from cart
-@bp.route('/api/remove_from_cart/<u_id:int>&<auc_id:int>', methods=['GET'])
+@bp.route('/api/remove_from_cart/<u_id>&<auc_id>', methods=['GET'])
 def remove_from_cart(u_id, auc_id):
     """
     Allow a user to remove a "buy-now" item from their cart.
@@ -184,7 +188,7 @@ def remove_from_cart(u_id, auc_id):
 
 
 # Clear a cart
-@bp.route('/api/clear_cart/<u_id:int>', methods=['GET'])
+@bp.route('/api/clear_cart/<u_id>', methods=['GET'])
 def clear_cart(u_id):
     """
     Completely clear a user's cart. Should only be called when a payment has
@@ -200,7 +204,7 @@ def clear_cart(u_id):
 
 
 # View cart
-@bp.route('/api/view_cart/<u_id:int>', methods=['GET'])
+@bp.route('/api/view_cart/<u_id>', methods=['GET'])
 def view_cart(u_id):
     """
     Allow a user to view their own cart.
@@ -224,7 +228,7 @@ def view_cart(u_id):
 # WATCHLIST #
 #############
 # Add to watchlist
-@bp.route('/api/add_to_watchlist/<u_id:int>&<auc_id:int>', methods=['GET'])
+@bp.route('/api/add_to_watchlist/<u_id>&<auc_id>', methods=['GET'])
 def add_to_watchlist(u_id, auc_id):
     """
     Allow a user to add either a current auction or a "buy-now" item to their
@@ -240,7 +244,7 @@ def add_to_watchlist(u_id, auc_id):
 
 
 # Remove from watchlist
-@bp.route('/api/remove_from_watchlist/<u_id:int>&<auc_id:int>', methods=['GET'])
+@bp.route('/api/remove_from_watchlist/<u_id>&<auc_id>', methods=['GET'])
 def remove_from_watchlist(u_id, auc_id):
     """
     Allow a user to remove an auction or "buy-now" item from their watchlist.
@@ -255,7 +259,7 @@ def remove_from_watchlist(u_id, auc_id):
 
 
 # View watchlist
-@bp.route('/api/view_watchlist/<u_id:int>', methods=['GET'])
+@bp.route('/api/view_watchlist/<u_id>', methods=['GET'])
 def view_watchlist(u_id):
     """
     Allow a user to view their own watchlist.

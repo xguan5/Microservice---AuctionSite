@@ -2,19 +2,14 @@ import os
 
 from flask import Flask
 import traceback 
-from . import models 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(
-        SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost/user_db'
+        SECRET_KEY='dev'
     )
-    models.init_app(app)
-    models.create_tables(app)
-
 
     if test_config is None:
         # load the instance config, if it exists, when not testing

@@ -46,6 +46,7 @@ def get_auction(id):
 def create_auction():
 	#content = request.get_json(force=True)
 	content = request.form
+	print(content)
 	name = content['name']
 	buy_now_price = content['buy_now_price']
 	start_bid_price = content['start_bid_price']
@@ -64,7 +65,7 @@ def create_auction():
 	models.db.session.add(new_auction)
 	models.db.session.commit()
 
-	return jsonify({'result': new_auction.to_json()})
+	return jsonify({'result': True, 'content': new_auction.to_json()})
 
 
 #update a auction, use this to mark end and start of auction by setting status

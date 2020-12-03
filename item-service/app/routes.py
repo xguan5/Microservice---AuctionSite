@@ -7,7 +7,6 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, escape, json, jsonify, Response, Blueprint
 import requests
 from . import models as models
-from pandas.io.json import json_normalize 
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -38,7 +37,7 @@ def create_item():
 	if 'flag' in content.keys():
 		flag = content['flag']
 
-	new_item = models.Item(name,description)
+	new_item = models.Item(name,description, category)
 
 	models.db.session.add(new_item)
 	models.db.session.commit()
@@ -106,9 +105,8 @@ def update_category(id):
 	category = models.Category.query.get(id)
 
 	content = request.form
-	if 'name' in content.keys():
-		name = content['name']
-		item.name = name
+	name = content['name']
+	category.name = name
 
 	models.db.session.commit()
 
@@ -117,7 +115,7 @@ def update_category(id):
 #get all categories
 @bp.route('/api/categories', methods=['GET'])
 def get_categories():
-	all_categories = []
+	all_categories = []	
 	for row in models.Category.query.all():
 		all_categories.append(row.to_json())
 	res = jsonify(all_categories)

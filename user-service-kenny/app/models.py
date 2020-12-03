@@ -27,9 +27,7 @@ class User(db.Model):
     address_city = db.Column(db.String(255))
     address_state = db.Column(db.String(2))
     address_zip = db.Column(db.String(5))
-    status = db.Column(db.Enum(["active",
-                                "suspended",
-                                "deleted"]))
+    status = db.Column(db.String(10))
 
     def __init__(self, username, email, address_1, address_2, address_city,
                  address_state, address_zip, status="active", role="basic"):
@@ -43,7 +41,16 @@ class User(db.Model):
         self.status = status
 
     def return_profile(self):
-        return self.return_account().update(self.return_address)
+        return {
+            'username': self.username,
+            'email': self.email,
+            'status': self.status,
+            'address_1': self.address_1,
+            'address_2': self.address_2,
+            'address_city': self.address_city,
+            'address_state': self.address_state,
+            'address_zip': self.address_zip
+        }
 
     def return_account(self):
         return {
@@ -63,13 +70,15 @@ class User(db.Model):
 
 
 class Rating(db.Model):
+    rating_id = db.Column(db.Integer, primary_key=True)
     rater_id = db.Column(db.String(255))
     recipient_id = db.Column(db.String(255))
     rating = db.Column(db.Integer)
-    review = db.Column(db.Text(4000))
+    review = db.Column(db.String(4000))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, rater_id, recipient_id, rating, review, timestamp):
+    def __init__(self, rating_id, rater_id, recipient_id, rating, review, timestamp):
+        self.rating_id = rating_id
         self.rater_id = rater_id
         self.recipient_id = recipient_id
         self.rating = rating

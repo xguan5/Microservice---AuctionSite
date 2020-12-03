@@ -31,9 +31,9 @@ class Auction(db.Model):
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     end_time = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate = datetime.utcnow)
-    creator_id = db.Column(db.Integer)
-    manager_id = db.Column(db.Integer)
-    winner_id = db.Column(db.Integer)
+    creator_id = db.Column(db.String)
+    manager_id = db.Column(db.String)
+    winner_id = db.Column(db.String)
     item_id = db.Column(db.Integer)
     biddings = db.relationship('Bidding')
 
@@ -51,6 +51,7 @@ class Auction(db.Model):
 
     def to_json(self):
         return {
+            'id': self.id,
             'name': self.name,
             'creator': self.creator_id,
             'item': self.item_id,
@@ -66,7 +67,7 @@ class Auction(db.Model):
 
 class Bidding(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.String)
     auction_id = db.Column(db.Integer, db.ForeignKey('auction.id') )
     bid_price = db.Column(db.Float)
     bid_placed = db.Column(db.DateTime, default=datetime.utcnow)

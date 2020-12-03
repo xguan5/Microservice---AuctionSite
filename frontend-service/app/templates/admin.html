@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <title>Auction Site</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
+   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
+</head>
+
+<body>
+    <div class="request-overlay hidden" id="request-overlay"></div>
+    <div class="sr-root">
+        <div class="sr-main">
+          <header class="sr-header">
+            <div class="sr-header__logo"></div>
+          </header>
+          <div class="sr-payment-summary payment-view">
+            <h1 class="order-amount">Hello {{ session.username }}</h1>
+            <div class="sr-legal-text" style="text-align: left;">
+                <hr>
+            </div>
+          </div>
+
+          <div class="pricing-option">
+              <form method="POST" action="{{ url_for('routes.category_update') }}">
+                <h3>Item Categories</h3>
+                <hr>
+                {% for category in categories %}
+                <h5>{{ category.name }}:</h5>
+                <input type="text" name="{{ category.id }}" value="{{ category.name }}">
+                {% endfor %}
+                <h5>Add New:</h5>
+                <input type="text" name="new_category"  >
+                <button
+                    type="submit"
+                    style="width: 100%"
+                >
+                <span id="button-text" >Save</span>
+                </button>
+            </form>
+          </div>
+
+          <div class="pricing-option">
+            <form method="POST" action="{{ url_for('routes.category_update') }}">
+              <h3>Flagged Items</h3>
+              <hr>
+              {% for flag in flags %}
+              <h5>Flag: {{ flag.name }} </h5>
+              {% endfor %}
+        </div>
+
+          
+        </div>
+      </div>
+ 
+    <!-- End Container-->
+    </div>
+
+    <!-- JQuery
+    ================================================== -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    
+    <!-- Mask (For Phone Numbers)
+    ================================================== -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.mask.js') }}"></script>
+
+    <!-- IN2L
+    ================================================== -->
+    <script>
+    </script>
+</body>
+</html>

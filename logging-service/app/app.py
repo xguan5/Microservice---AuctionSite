@@ -47,6 +47,8 @@ def query_records():
 @app.route('/api/create_log', methods=['POST'])
 def create_log(record):
 
+    return True
+
     #record = json.loads(request.form)
     #record = request.form
     print('record is ', record)

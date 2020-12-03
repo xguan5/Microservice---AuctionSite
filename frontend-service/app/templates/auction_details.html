@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -11,7 +10,7 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
-
+   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
 </head>
 
 <body>
@@ -22,39 +21,129 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">Auction </h1>
+            <h1 class="order-amount">{{ auction.name }} - <a href="{{ url_for('routes.auction_list') }}"> Back to Auctions </a> </h3>
+           
+          </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
-                <h5>Auction details</h5>   
-
+                <h5>{{ item.name }} </h5>   
+                Started: {{ auction.start_time }}
             </div>
           </div>
-          <div class="pricing-option">
-              <h1>{{ auction_details.name }}</h1>
-              <hr>
-              <ul>
-                  <li>Item: {{ auction_details.item }}</li>
-                  <li>Started: {{ auction_details.start_time }}</li>
-                  <li>Current Bid: ${{ auction_details.current_bid }}</li>
-                  <li>Buy Now Price: ${{ auction_details.buy_now_price }} </li>
-                  <li>Auction Ends: {{ auction_details.end_time }} </li>
-              </ul>
 
-                <input type="number" name="bid_amount">
-                
-                <a 
-                    href=""
+          {% if session.get('username') == auction.creator %}
+          <!--
+          <div class="pricing-option">
+            <form method="POST" action="{{ url_for('routes.update_item', item_id=item.id, auction_id=auction.id) }}">
+              <h3>Edit Item Details</h3>
+              <hr>
+              <h5>Name:</h5>
+              <input type="text" name="name" value="{{ item.name }} " >
+              <h5>Description:</h5>
+              <input type="text" name="description" value="{{ item.description }} " >
+              <h5>Category:</h5>
+              <select name="category" >
+              {% for category in categories %}
+              <option value="{{ category.id }}" {% if category.id == item.category %} selected {% endif %}>{{ category.name }}</option>
+              {% endfor %}
+              </select>
+              {% for flag in item.flags %}
+              <h5>{{ flag }}</h5>
+              {% endfor %}
+              <button
+                  type="submit"
+                  style="width: 100%"
+              >
+              <span id="button-text" >Save Item</span>
+              </button>
+            </form>
+          </div>
+         -->
+          {% else %}
+          <!--
+          <div class="pricing-option">
+            <form method="POST" action="{{ url_for('routes.update_item', item_id=item.id, auction_id=auction.id) }}">
+              <h3> Item Details</h3>
+              <hr>
+              <h5>Name: {{ item.name }}
+              <h5>Description: {{ item.description }}
+              <h5>Category: {{ item.category_details.name }}</h5>
+            </form>
+          </div>
+          -->
+          {% endif %}
+          <div class="pricing-option">
+            <form method="POST" action="{{ url_for('routes.update_item', item_id=item.id, auction_id=auction.id) }}">
+              <h3> Item Details</h3>
+              <hr>
+              <h5>Name: {{ item.name }}
+              <h5>Description: {{ item.description }}
+              <h5>Category: {{ item.category_details.name }}</h5>
+            </form>
+          </div>
+          <div class="pricing-option">
+            
+              <h3>Bid</h3>
+              <hr>
+              {% if bid_error %} <h3 style="color: red">{{ bid_error }}</h3> {% endif %}
+              <h4>Current Bid: {{ highest_bid }}</h4>
+              <h4>Minimum Next Bid: {{ next_bid }}</h4>
+              <form method="POST" action="{{ url_for('routes.place_bid', auction_id=auction.id) }}">
+                <input type="text" name="bid_amount" value="{{ next_bid }}">
+                <button type="submit" style="width: 100%"><span id="button-text" >Bid</span></button>
+              </form>
+              <h3 style="margin-top: 20px">Other</h3>
+              <hr>
+              <h4>Buy Now Price: {{ auction.buy_now_price }}</h4>
+              <form method="POST" action="{{ url_for('routes.buy_now', item_id=item.id, auction_id=auction.id) }}">
+                <button type="submit" style="width: 100%"><span id="button-text" >Buy Now</span></button>
+              </form>
+              <form method="POST" action="{{ url_for('routes.add_to_watchlist', item_id=item.id, auction_id=auction.id) }}">
+                  <button type="submit" style="width: 100%"><span id="button-text" >Add to Watch List</span></button>
+              </form>
+              <form method="POST" action="{{ url_for('routes.flag_item', item_id=item.id, auction_id=auction.id) }}">
+                <button type="submit" style="width: 100%"><span id="button-text" >Flag as Inappropriate</span></button>
+            </form>
+              {% if session.is_admin %}
+              <form method="POST" action="{{ url_for('routes.end_auction', auction_id=auction.id) }}">
+                <button type="submit" style="width: 100%"><span id="button-text" >Admin - End Auction</span></button>
+              </form>
+              {% endif %}
+              {% if session.is_admin and highest_bid == 0 %}
+              <form method="POST" action="{{ url_for('routes.end_auction', auction_id=auction.id) }}">
+                <button type="submit" style="width: 100%"><span id="button-text" >Poster - End Auction</span></button>
+              </form>
+              {% endif %}
+          </div>
+          
+
+            <div class="pricing-option">
+              <form method="POST" action="{{ url_for('routes.update_auction', auction_id=auction.id) }}">
+                <h3>Auction Details</h3>
+                <hr>
+                <h5>Name:</h5>
+                <input type="text" name="auction_name" value="{{ auction.name }} " >
+                <h5>Status:</h5>
+                <input type="text" name="status" value="{{ auction.status }} " >
+                <h5>Start Bid Price:</h5>
+                <input type="text" name="start_bid_price" value="{{ auction.start_bid_price }} " >
+                <h5>Bid Increment:</h5>
+                <input type="text" name="inc_bid_price" value="{{ auction.inc_bid_price }} " >
+                <h5>Buy Now Price:</h5>
+                <input type="text" name="buy_now_price" value="{{ auction.buy_now_price }}" >
+                <h5>Start Time:</h5>
+                <input type="text" name="start_time" value="{{ auction.start_time }}" >
+                <h5>End Time:</h5>
+                <input type="text" name="end_time" value="{{ auction.end_time }}" >
+                <input type="text" style="display: none" name="creator" value="{{session.username}}">
+
+                <button
+                    type="submit"
                     style="width: 100%"
                 >
-                    <span id="button-text" >Bid</span>
-                </a>
-                <a 
-                    href=""
-                    style="width: 100%"
-                ><br>
-                    <span id="button-text" style="margin-top: 10px">Buy Now</span>
-                </a>
-          </div>
+                <span id="button-text" >Save Auction</span>
+                </button>
+            </form>
 
           
         </div>

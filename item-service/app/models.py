@@ -29,12 +29,14 @@ class Item(db.Model):
     flag_id = db.Column(db.Integer, db.ForeignKey('flag.id'))
 
 
-    def __init__(self,name,description):
+    def __init__(self,name,description, category_id=None):
         self.name = name
         self.description = description
+        self.category_id=category_id
 
     def to_json(self):
         return {
+            'id': self.id,
             'name': self.name,
             'description': self.description,
             'category': self.category_id,
@@ -53,7 +55,8 @@ class Category(db.Model):
 
     def to_json(self):
         return {
-            'name': self.name,
+            'id': self.id,
+            'name': self.name
         }
 
 class Flag(db.Model):
@@ -68,8 +71,13 @@ class Flag(db.Model):
 
     def to_json(self):
         return {
+<<<<<<< HEAD
             'name': self.name,
             'items': self.items
+=======
+            'id': self.id,
+            'name': self.name
+>>>>>>> 1e11234e6165b18416059d17eefd13ab05edbe68
         }
 
 

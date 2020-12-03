@@ -12,9 +12,77 @@ delivery: 5006
 notification: 5007
 """
 
-def create_user(data):
+def get_all_categories():
 
-    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/categories'.format(get_ip(), get_port())
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def update_category(id, name):
+
+    url = 'http://{}:{}/api/category/{}'.format(get_ip(), get_port(),id)
+
+    data = {'name': name}
+
+    print(url, data)
+
+    response = requests.put(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def create_category(name):
+
+    url = 'http://{}:{}/api/category/create'.format(get_ip(), get_port())
+
+    data = {'name': name}
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+
+def get_item_details(id):
+    url = 'http://{}:{}/api/item/{}'.format(get_ip(), get_port(), id)
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def create_item(data):
+
+    url = 'http://{}:{}/api/item/create'.format(get_ip(), get_port())
+
+    response = requests.post(url=url, data=data)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def get_all_flags():
+
+    url = 'http://{}:{}/api/flags'.format(get_ip(), get_port())
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def flag_item(item_id):
+
+    url = 'http://{}:{}/api/flag/create'.format(get_ip(), get_port(), item_id)
+
+    data = {'name': 'Flagged by User'}
 
     response = requests.post(url=url, data=data)
 
