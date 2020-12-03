@@ -61,13 +61,15 @@ class Flag(db.Model):
     name = db.Column(db.String(255),unique = False, nullable = True)
     items = db.relationship('Item')
 
-    def __init__(self,name):
+    def __init__(self,name,items):
         self.name = name
+        self.items = items
 
 
     def to_json(self):
         return {
             'name': self.name,
+            'items': self.items
         }
 
 
