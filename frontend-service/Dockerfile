@@ -5,7 +5,7 @@ COPY requirements.txt requirements.txt
 
 RUN apk add --no-cache gcc musl-dev linux-headers
 RUN apk update
-RUN apk add postgresql-dev gcc python3-dev musl-dev
+RUN apk add postgresql-dev gcc python3-dev musl-dev postgresql-contrib postgresql
 RUN pip install -r requirements.txt
 
 ENV FLASK_APP="app:create_app()"
