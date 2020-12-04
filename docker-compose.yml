@@ -22,6 +22,7 @@ services:
       - ./authentication-service/app:/authentication-service/app
     networks:
       - auction-network
+      - authentication-service-network
 
   authentication_db:
     environment:
@@ -32,40 +33,19 @@ services:
     container_name: authentication_db
     networks:
       - auction-network
+      - authentication-service-network
+
     ports:
       - 6002:5432
     volumes:
       - authentication_db_volume:/var/lib/postgresql
 
-  user:
-    build:
-      context: ./user-service-kenny
-    ports:
-      - 5003:5000
-    container_name: user
-    volumes:
-      - ./user-service/app:/user-service/app
-    networks:
-      - auction-network
-
-  user_db:
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: user_db
-    image: postgres:latest
-    container_name: user_db
-    networks:
-      - auction-network
-    ports:
-      - 6003:5432
-    volumes:
-      - user_db_volume:/var/lib/postgresql
-
 networks:
   auction-network:
-    external: true
+    #external: true
+  authentication-service-network:
+    #external: true
 
 volumes:
   authentication_db_volume:
-  user_db_volume:
+  #user_db_volume:
