@@ -52,8 +52,7 @@ class PaymentMethod(db.Model):
             'billing_city': self.billing_city,
             'billing_zip': self.billing_zip,
             'billing_state': self.sbilling_state,
-            'billing_country':self.billing_country,
-            'exp_date':self.exp_date
+            'billing_country':self.billing_country
         }
 
 class Transaction(db.Model):
