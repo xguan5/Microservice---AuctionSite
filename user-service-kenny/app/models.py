@@ -111,15 +111,24 @@ class CartItem(db.Model):
 
 
 class WatchlistItem(db.Model):
-    username = db.Column(db.String(255), unique=True)
-    auc_id = db.Column(db.Integer, primary_key=True)
+    watchlist_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255))
+    buy_now_price = db.Column(db.Float) # max
+    start_bid_price = db.Column(db.Float, nullable=True) # max
+    name = db.Column(db.String(255), nullable=True) # contains
 
-    def __init__(self, username, auc_id):
+
+    def __init__(self, username, buy_now_price, start_bid_price, name):
         self.username = username
-        self.auc_id = auc_id
+        self.buy_now_price = buy_now_price
+        self.start_bid_price = start_bid_price
+        self.name = name
+
 
     def return_watchlist_item(self):
         return {
-            'user_id': self.username,
-            'auc_id': self.auc_id
+            'username': self.username,
+            'buynow_price': self.buy_now_price,
+            'starting_bid': self.start_bid_price,
+            'name': self.name
         }
