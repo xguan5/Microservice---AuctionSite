@@ -59,10 +59,9 @@ class PaymentMethod(db.Model):
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     payer_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
     pay_amount = db.Column(db.String(15), nullable = False)
     #item_id = db.Column(db.Integer, db.ForeignKey(item.id))
-    #auctions = db.relationship('CheckoutAuction', backref='checkoutAction')
     transact_date = db.Column(db.DateTime, default = datetime.utcnow)
     
     payment_method = db.Column(db.Integer, db.ForeignKey('PaymentMethod.id'))
@@ -77,7 +76,18 @@ class Transaction(db.Model):
     # process transaction, mark transaction as completed
     def process_transaction(self):
         self.status = 'completed'
+        return True
 
+    def return_payment_status(self):
+        return self.status
+
+    def return_invoice(self):
+        return {
+            'transaction date': self.transact_date,            
+            'from': self.payer_id,
+            'to': self.receiver_id,
+            'status': self.status
+        }
 
     def to_json(self):
         return {
