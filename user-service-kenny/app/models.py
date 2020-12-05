@@ -103,7 +103,7 @@ class CartItem(db.Model):
         self.username = username
         self.auc_id = auc_id
 
-    def return_cart_item(self):
+    def to_json(self):
         return {
             'user_id': self.username,
             'auc_id': self.auc_id

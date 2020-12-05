@@ -164,7 +164,12 @@ def place_bid(auction_id):
     return get_auction_details(auction_id=auction_id, bid_error=bid_error)
 
 @bp.route('/auction/buy-now/<auction_id>', methods=['GET', 'POST'])
-def buy_now():
+def buy_now(auction_id):
+
+    print('Hello')
+
+    users.add_to_cart(session.get('username'), auction_id)
+
     return get_auction_details(auction_id=auction_id)
 
 @bp.route('/auction/end-auction/<auction_id>', methods=['GET', 'POST'])
@@ -194,6 +199,28 @@ def flag_item(item_id, auction_id):
     print(response)
 
     return get_auction_details(auction_id=auction_id)
+
+@bp.route('/cart', methods=['GET', 'POST'])
+def get_cart():
+
+    response = users.get_cart(session.get('username'))
+
+    cart_list = []
+
+    for item in response['content']:
+        auction = auctions.get_auction_details(item['auc_id'])['result']
+        auction['price'] = auctions.get_highest_bid(auction['id'])['max_bid']
+        cart_list.append(auction)
+        
+
+    template = render_template('cart.html', cart_list=cart_list)
+
+    return template
+
+@bp.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+
+    return "Cha ching"
 
 @bp.route('/auction/<auction_id>', methods=['GET'])
 def get_auction_details(auction_id, bid_error=None):
