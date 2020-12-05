@@ -303,4 +303,5 @@ def check_watchlist_match():
         emails.append(view_user(username)["email"])
 
     for email in emails:
+        pass
         # TODO: send to notification service

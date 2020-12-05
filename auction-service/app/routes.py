@@ -22,7 +22,7 @@ def add_log(msg):
     channel.queue_declare(queue='hello')
     channel.basic_publish(exchange='', routing_key='hello', body=msg)
     connection.close()
-    return f" [x] Sent " + msg
+    return " [x] Sent {}" % msg
     
 
 #get all auctions

@@ -10,6 +10,7 @@ from . import user_client as users
 from . import auction_client as auctions
 from . import authentication_client as auth
 from . import item_client as items
+import psycopg2
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -25,6 +26,7 @@ def check_login():
 @bp.route('/auction_list', methods=['GET'])
 @bp.route('/auction_list/<sort>', methods=['GET', 'POST'])
 def auction_list(sort='start_time'):
+    error=None
 
     print(request.form)
 
@@ -229,8 +231,7 @@ def get_auction_details(auction_id, bid_error=None):
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-
-    error = None
+    error=None
 
     if request.method == 'POST':
         result = auth.login(request.form['username'], request.form['password'])

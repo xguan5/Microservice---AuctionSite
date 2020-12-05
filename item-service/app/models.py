@@ -71,13 +71,8 @@ class Flag(db.Model):
 
     def to_json(self):
         return {
-<<<<<<< HEAD
-            'name': self.name,
-            'items': self.items
-=======
             'id': self.id,
             'name': self.name
->>>>>>> 1e11234e6165b18416059d17eefd13ab05edbe68
         }
 
 

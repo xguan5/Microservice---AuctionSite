@@ -12,6 +12,9 @@ services:
 #    networks:
 #      - auction-network
 
+
+
+
   authentication:
     build:
       context: ./authentication-service
@@ -39,6 +42,12 @@ services:
 #      - 6002:5432
 #    volumes:
 #      - authentication_db_volume:/var/lib/postgresql
+
+
+
+
+
+
 
 networks:
   auction-network:

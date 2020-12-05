@@ -1,6 +1,6 @@
 FROM python:3.7-alpine
 
-WORKDIR /frontend-service/app
+WORKDIR /app
 COPY requirements.txt requirements.txt
 
 RUN apk add --no-cache gcc musl-dev linux-headers
