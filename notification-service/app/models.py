@@ -26,7 +26,8 @@ class Email(db.model):
     msg = db.Column(db.Text(20000))
     needs_reply = db.Column(db.Boolean, default=True)
 
-    def __init__(self, sender, recipient, subject, msg, needs_reply):
+    def __init__(self, e_id, sender, recipient, subject, msg, needs_reply):
+        self.e_id = e_id
         self.sender = sender
         self.recipient = recipient
         self.subject = subject
@@ -35,6 +36,7 @@ class Email(db.model):
 
     def return_email(self):
         return {
+            'e_id': self.e_id,
             'sender': self.sender,
             'recipient': self.recipient,
             'subject': self.subject,

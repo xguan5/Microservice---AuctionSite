@@ -228,14 +228,19 @@ def view_cart(u_id):
 # WATCHLIST #
 #############
 # Add to watchlist
-@bp.route('/api/add_to_watchlist/<u_id>&<auc_id>', methods=['GET'])
-def add_to_watchlist(u_id, auc_id):
+@bp.route('/api/add_to_watchlist/<username>', methods=['GET'])
+def add_to_watchlist(username):
     """
     Allow a user to add either a current auction or a "buy-now" item to their
     watchlist.
     """
 
-    added_item = models.WatchlistItem(u_id, auc_id)
+    content = request.form
+    # request should always include:
+    # buy_now_price, start_bid_price, name
+    # but if user did not specify any of these, they should be "None"
+
+    added_item = models.WatchlistItem(username, **content)
 
     models.db.session.add(added_item)
     models.db.session.commit()
@@ -244,13 +249,12 @@ def add_to_watchlist(u_id, auc_id):
 
 
 # Remove from watchlist
-@bp.route('/api/remove_from_watchlist/<u_id>&<auc_id>', methods=['GET'])
-def remove_from_watchlist(u_id, auc_id):
+@bp.route('/api/remove_from_watchlist/<watchlist_id>', methods=['GET'])
+def remove_from_watchlist(watchlist_id):
     """
     Allow a user to remove an auction or "buy-now" item from their watchlist.
     """
-    item_to_remove = models.WatchlistItem.query.get(models.WatchlistItem(u_id,
-                                                                         auc_id))
+    item_to_remove = models.WatchlistItem.query.get(models.WatchlistItem(watchlist_id))
 
     models.db.session.delete(item_to_remove)
     models.db.session.commit()
@@ -259,13 +263,44 @@ def remove_from_watchlist(u_id, auc_id):
 
 
 # View watchlist
-@bp.route('/api/view_watchlist/<u_id>', methods=['GET'])
-def view_watchlist(u_id):
+@bp.route('/api/view_watchlist/<username>', methods=['GET'])
+def view_watchlist(username):
     """
     Allow a user to view their own watchlist.
     """
     watchlist = []
-    for row in models.WatchlistItem.query.filter_by(username=u_id):
+    for row in models.WatchlistItem.query.filter_by(username=username):
         watchlist.append(row.to_json())
 
     return jsonify(watchlist)
+
+
+# Check watchlist match
+@bp.route('/api/check_match/', methods=['GET'])
+def check_watchlist_match():
+    """
+    Given a set of auction criteria, return the email addresses of any user
+    that has a watchlist that matches that criteria, then email them.
+    """
+
+    content = request.form
+
+    buy_now_price = content["buy_now_price"]
+    start_bid_price = content["start_bid_price"]
+    name = content["name"]
+
+    watchlists = models.WatchlistItem.query.all()
+    if buy_now_price:
+        watchlists = watchlists.filter(WatchlistItem.buy_now_price < buy_now_price)
+    if start_bid_price:
+        watchlists = watchlists.filter(WatchlistItem.start_bid_price < start_bid_price)
+    if name:
+        watchlists = watchlists.filter(models.WatchlistItem.name.ilike(name))
+
+    emails = []
+    for row in watchlists:
+        username = row.to_json()['username']
+        emails.append(view_user(username)["email"])
+
+    for email in emails:
+        # TODO: send to notification service
