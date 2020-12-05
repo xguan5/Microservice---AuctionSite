@@ -1,7 +1,8 @@
 from flask import Flask, make_response, abort, request, session, g, redirect, \
     redirect, url_for, abort, render_template, flash, escape, json, jsonify,\
         Response, Blueprint
-from models import db, PaymentMethod, Trasaction
+    
+from . import models
 from datetime import datetime
 import os
 import sys
@@ -16,14 +17,14 @@ def create_label(transact_id):
     pass
 
 # create a delivery
-@bp.route('api/delivery/create',methods=['POST'])
-def schedule_delivery(transaction_id):
-	new_info = request.form
-	package_size = new_info['package_size'] # small package or med / large boxes
+@bp.route('api/delivery/create/<transact_id>',methods=['POST'])
+def schedule_delivery(transact_id):
+    new_info = request.form
+    package_size = new_info['package_size'] # small package or med / large boxes
     courier = new_info['courier'] # DHL, EMS, Fedex
     shipping_option = new_info['shipping_option'] # standard or expedited
 
-    Delivery(transact_id, package_size, courier, shipping_option))
+    models.Delivery(transact_id, package_size, courier, shipping_option)
     
-    return True
+    return json.dumps({'success': True})
     

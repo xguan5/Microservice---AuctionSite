@@ -16,13 +16,16 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 #set up rabbitmq
 @bp.route('/add-job', methods=['POST'])
 def add_log(msg):
-    credentials = pika.PlainCredentials(username='guest', password='guest')
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
-    channel = connection.channel()
-    channel.queue_declare(queue='hello')
-    channel.basic_publish(exchange='', routing_key='hello', body=msg)
-    connection.close()
-    return " [x] Sent {}" % msg
+	try:
+		credentials = pika.PlainCredentials(username='guest', password='guest')
+		connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
+		channel = connection.channel()
+		channel.queue_declare(queue='hello')
+		channel.basic_publish(exchange='', routing_key='hello', body=msg)
+		connection.close()
+		return " [x] Sent {}" % msg
+	except Exception as e:
+		return "Pass"
     
 
 #get all auctions

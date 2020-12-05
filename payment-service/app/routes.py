@@ -16,7 +16,7 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 @bp.route('/api/PaymentMethod/<userid>', methods=['GET'])
 def get_PaymentMethod(userid):
 	pmt_methods = []
-	for row in PaymentMethod.query.all():
+	for row in models.PaymentMethod.query.all():
 		if userid == row.user_id:
 			pmt_methods.append(row.to_json())
 	pmt_methods_dict = jsonify(pmt_methods)
@@ -38,7 +38,7 @@ def create_PaymentMethod():
 	exp_date = new_info['exp_date']
 	csv_code = new_info['csv_code']
 
-	new_PaymentMethod = PaymentMethod(user_id, card_num, billing_name, \
+	new_PaymentMethod = models.PaymentMethod(user_id, card_num, billing_name, \
         billing_address1, billing_address2, billing_city, billing_zip, \
             billing_state, billing_country, exp_date, csv_code)
 
@@ -51,7 +51,7 @@ def create_PaymentMethod():
 # update a payment method
 @bp.route('/api/PaymentMethod/<pmtid>',methods=['PUT'])
 def update_PaymentMethod(pmtid):
-	pmt_method = PaymentMethod.query.get(pmtid)
+	pmt_method = models.PaymentMethod.query.get(pmtid)
 
 	new_info = request.form
 	billing_name = new_info['billing_name']
@@ -81,7 +81,7 @@ def update_PaymentMethod(pmtid):
 # delete a payment method
 @bp.route('/api/PaymentMethod/<pmtid>',methods=['DELETE'])
 def delete_PaymentMethod(pmtid):
-	pmt_method = PaymentMethod.query.get(pmtid)
+	pmt_method = models.PaymentMethod.query.get(pmtid)
 	models.db.session.delete(pmt_method)
 	models.db.session.commit()
 	return jsonify({'result': pmt_method.to_json()})

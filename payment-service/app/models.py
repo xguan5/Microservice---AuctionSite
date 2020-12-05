@@ -16,7 +16,7 @@ def create_tables(app):
 
 class PaymentMethod(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
+    user_id = db.Column(db.Integer)
     card_num = db.Column(db.Integer, nullable = False)
     billing_name = db.Column(db.String(26), nullable = False)
     billing_address1 = db.Column(db.String(50), nullable = False)
@@ -58,14 +58,14 @@ class PaymentMethod(db.Model):
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    payer_id = db.Column(db.Integer, db.ForeignKey('user.u_id'))
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    payer_id = db.Column(db.Integer)
+    receiver_id = db.Column(db.Integer)
     pay_amount = db.Column(db.String(15), nullable = False)
     #item_id = db.Column(db.Integer, db.ForeignKey(item.id))
     #auctions = db.relationship('CheckoutAuction', backref='checkoutAction')
     transact_date = db.Column(db.DateTime, default = datetime.utcnow)
     
-    payment_method = db.Column(db.Integer, db.ForeignKey('PaymentMethod.id'))
+    payment_method = db.Column(db.Integer)
 
     def __init__(self, payer_id, receiver_id, pay_amount, paymethod_id, status = 'Pending Payment'):
         self.payer_id = payer_id

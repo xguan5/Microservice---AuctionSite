@@ -1,14 +1,14 @@
-# Auction Site payment-service
+# Auction Site notification-service
 
 To Deploy: 
 
 Run the following replacing the source volume with your directory:
-docker run  -v ~/development/mpcs51205-group6/payment-service/app:/service/app \
-    -di -P --hostname payment --name payment -p 5011:5000 \
+docker run  -v ~/development/mpcs51205-group6/notification-service/app:/service/app \
+    -di -P --hostname notification --name notification -p 5010:5000 \
     --network auction-network \
     ubuntu:14.04 /bin/bash 
 
-docker exec -it payment /bin/bash
+docker exec -it notification /bin/bash
 cd /service/app
 
 apt-get update
@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 sudo service postgresql start
 sudo -u postgres psql
 In postgres:
-= create database payment_db;
+= create database notification_db;
 = alter user postgres WITH password 'postgres'; 
 = \q
 

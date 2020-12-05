@@ -15,7 +15,7 @@ def create_tables(app):
     db.metadata.create_all(engine)
     return engine
 
-class delivery(db.Model):
+class Delivery(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     pacakage_size = db.Column(db.String, nullable = False)
     tracking_num = db.Column(db.Integer)
@@ -28,7 +28,7 @@ class delivery(db.Model):
         self.courier = courier
         self.shipping_option = shipping_option
         
-        self.tracking_num = random.rand().1000000000000 #need to check this
+        self.tracking_num = random.randint(0, 100000000) #need to check this
 
     def to_json(self):
         return {

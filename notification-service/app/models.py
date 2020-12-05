@@ -11,19 +11,18 @@ def init_app(app):
     db.init_app(app)
     return db
 
-
 def create_tables(app):
     engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
     db.metadata.create_all(engine)
     return engine
 
 
-class Email(db.model):
-    e_id = db.column(db.Integer, primary_key=True)
-    sender = db.column(db.String(255))
-    recipient = db.column(db.String(255))
-    subject = db.column(db.String(255))
-    msg = db.Column(db.Text(20000))
+class Email(db.Model):
+    e_id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.String(255))
+    recipient = db.Column(db.String(255))
+    subject = db.Column(db.String(255))
+    msg = db.Column(db.String(20000))
     needs_reply = db.Column(db.Boolean, default=True)
 
     def __init__(self, e_id, sender, recipient, subject, msg, needs_reply):

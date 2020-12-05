@@ -8,7 +8,7 @@ from flask import (Flask, request, session, g, redirect, url_for, abort,
 import requests
 import email, imaplib
 import smtplib, ssl
-import models
+from . import models
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 

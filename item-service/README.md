@@ -1,4 +1,4 @@
-# Auction Site user-service
+# Auction Site item-service
 
 To Deploy: 
 
