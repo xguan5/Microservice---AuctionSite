@@ -4,7 +4,7 @@ To Deploy:
 
 Run the following replacing the source volume with your directory:
 docker run  -v ~/development/mpcs51205-group6/logging-service/app:/service/app \
-    -di -P --hostname logging --name logging -p 5002:5000 \
+    -di -P --hostname logging --name logging -p 6020:5000 \
     --network auction-network \
     ubuntu:14.04 /bin/bash 
 

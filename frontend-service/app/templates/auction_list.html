@@ -52,9 +52,11 @@
           {% for auction in auction_list %}    
           <div class="pricing-option">
               <h1>{{ auction.name }}</h1>
+              
               <hr>
               <h5>{{ auction.item.name }}</h5>   
               <ul>
+                  <li>{{ auction.status }}</li>
                   <li>{{ auction.item.description }}</li>
                   <li>Category: {{ auction['item']['category_details']['name'] }}</li>
                   <li>${{ auction.current_bid }} Current Bid</li>

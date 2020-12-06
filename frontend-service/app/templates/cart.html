@@ -49,7 +49,7 @@
           </div>
           {% endfor %}
           <a 
-          href="{{ url_for('routes.checkout') }}"
+          href="{{ url_for('routes.checkout', total=total) }}"
           style="width: 100%"
             >
             <span id="button-text" >Checkout</span>

@@ -207,20 +207,33 @@ def get_cart():
 
     cart_list = []
 
+    total = 0
+
     for item in response['content']:
         auction = auctions.get_auction_details(item['auc_id'])['result']
         auction['price'] = auctions.get_highest_bid(auction['id'])['max_bid']
-        cart_list.append(auction)
-        
+        cart_list.append(auction) 
+        total += auction['price']
 
-    template = render_template('cart.html', cart_list=cart_list)
+    template = render_template('cart.html', cart_list=cart_list, total=total)
 
     return template
 
-@bp.route('/checkout', methods=['GET', 'POST'])
-def checkout():
+@bp.route('/checkout/<total>', methods=['GET', 'POST'])
+def checkout(total):
 
-    return "Cha ching"
+    template = render_template('checkout.html', action='buy', total_amount=total)
+
+    return template
+
+@bp.route('/purchase', methods=['GET', 'POST'])
+def purchase():
+
+    #users.clear_cart()
+
+    template = render_template('checkout.html', action='done')
+
+    return template
 
 @bp.route('/auction/<auction_id>', methods=['GET'])
 def get_auction_details(auction_id, bid_error=None):
