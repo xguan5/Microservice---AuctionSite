@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+    ports:
+      - 9999:5000
+    container_name: frontend
+    volumes:
+      - ./app:/app
+    networks:
+      - auction-network
+
+networks:
+  auction-network:
+    external: true

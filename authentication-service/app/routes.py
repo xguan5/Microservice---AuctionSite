@@ -7,7 +7,6 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, escape, json, jsonify, Response, Blueprint
 import requests
 from . import authentication_client as authentication_client
-from . import app
 from . import models as models
 
 bp = Blueprint('routes', __name__, url_prefix='/')

@@ -27,19 +27,20 @@ class Auction(db.Model):
     buy_now_price = db.Column(db.Float)
     start_bid_price = db.Column(db.Float)
     inc_bid_price = db.Column(db.Float)
-    status = db.Column(db.String(50), default="Draft")
+    status = db.Column(db.String(50), default="Active")
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     end_time = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate = datetime.utcnow)
     creator_id = db.Column(db.String)
     manager_id = db.Column(db.String)
     winner_id = db.Column(db.String)
+    image_url = db.Column(db.String)
     item_id = db.Column(db.Integer)
     biddings = db.relationship('Bidding')
 
 
 
-    def __init__(self,name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator_id,item_id):
+    def __init__(self,name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator_id,item_id, image_url):
         self.name = name
         self.buy_now_price = buy_now_price
         self.start_bid_price = start_bid_price
@@ -48,6 +49,7 @@ class Auction(db.Model):
         self.end_time = end_time
         self.creator_id = creator_id
         self.item_id = item_id
+        self.image_url = image_url
 
     def to_json(self):
         return {
@@ -62,7 +64,8 @@ class Auction(db.Model):
             'end_time': self.end_time,
             'status': self.status,
             'date_updated': self.date_updated,
-            'winner': self.winner_id
+            'winner': self.winner_id,
+            'image_url': self.image_url
         }
 
 class Bidding(db.Model):

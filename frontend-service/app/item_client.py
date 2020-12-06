@@ -80,9 +80,9 @@ def get_all_flags():
 
 def flag_item(item_id):
 
-    url = 'http://{}:{}/api/flag/create'.format(get_ip(), get_port(), item_id)
+    url = 'http://{}:{}/api/flag/create'.format(get_ip(), get_port())
 
-    data = {'name': 'Flagged by User'}
+    data = {'name': 'Flagged by User', 'item_id': item_id}
 
     response = requests.post(url=url, data=data)
 

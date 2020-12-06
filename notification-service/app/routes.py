@@ -8,7 +8,7 @@ from flask import (Flask, request, session, g, redirect, url_for, abort,
 import requests
 import email, imaplib
 import smtplib, ssl
-import models
+from . import models
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -90,12 +90,15 @@ def receive_messages():
                 else:
                     mail_content = message.get_payload()
 
-        new_email = models.Email(i, mail_from, "teambottleneck@gmail.com",
-                                 mail_subject, mail_content)
-        models.db.session.add(new_email)
-        models.db.session.commit()
-
-    return True
+        new_email = models.Email(int(i), mail_from, "teambottleneck@gmail.com",
+                                 mail_subject, mail_content, needs_reply=True)
+        try:
+            models.db.session.add(new_email)
+            models.db.session.commit()
+        except Exception as e:
+            print('existing')
+            pass 
+    return 'success'
 
 ##############################
 # REPLY TO CUSTOMER MESSAGES #
@@ -127,6 +130,11 @@ def reply_to_message(msg_id):
     Sends a reply to a specific message.
     """
 
+    message = models.Email.query.get(msg_id)
+    message.needs_reply = False
+    models.db.session.commit()
+    
+    
     content = request.form
 
     original_email = json.loads(get_message(msg_id))

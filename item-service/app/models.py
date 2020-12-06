@@ -62,7 +62,7 @@ class Category(db.Model):
 class Flag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255),unique = False, nullable = True)
-    items = db.relationship('Item')
+    items = db.Column(db.Integer)
 
     def __init__(self,name,items):
         self.name = name
@@ -71,13 +71,9 @@ class Flag(db.Model):
 
     def to_json(self):
         return {
-<<<<<<< HEAD
+            'id': self.id,
             'name': self.name,
             'items': self.items
-=======
-            'id': self.id,
-            'name': self.name
->>>>>>> 1e11234e6165b18416059d17eefd13ab05edbe68
         }
 
 

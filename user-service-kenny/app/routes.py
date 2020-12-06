@@ -159,14 +159,14 @@ def rate_user(u_id_give, u_id_recv):
 # CART #
 ########
 # Add to cart
-@bp.route('/api/add_to_cart/<u_id>&<auc_id>', methods=['GET'])
-def add_to_cart(u_id, auc_id):
+@bp.route('/api/add_to_cart/<username>&<auc_id>', methods=['GET'])
+def add_to_cart(username, auc_id):
     """
     Allow a user to add either a victorious auction or a "buy-now" item to
     their cart.
     """
 
-    added_item = models.CartItem(u_id, auc_id)
+    added_item = models.CartItem(username, auc_id)
 
     models.db.session.add(added_item)
     models.db.session.commit()
@@ -221,14 +221,15 @@ def view_cart(u_id):
     for row in models.CartItem.query.filter_by(username=u_id):
         cart.append(row.to_json())
 
-    return jsonify(cart)
+
+    return json.dumps({'success': True, 'content': cart})
 
 
 #############
 # WATCHLIST #
 #############
 # Add to watchlist
-@bp.route('/api/add_to_watchlist/<username>', methods=['GET'])
+@bp.route('/api/add_to_watchlist/<username>', methods=['POST'])
 def add_to_watchlist(username):
     """
     Allow a user to add either a current auction or a "buy-now" item to their
@@ -303,4 +304,5 @@ def check_watchlist_match():
         emails.append(view_user(username)["email"])
 
     for email in emails:
+        pass
         # TODO: send to notification service

@@ -11,7 +11,7 @@ def create_app(test_config=None):
 
     app.config.from_mapping(
         SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@authentication_db:5432/authentication_db',
+        SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost:5432/authentication_db',
         SQLALCHEMY_ECHO = True
     )
 
@@ -45,5 +45,3 @@ def create_app(test_config=None):
     app.register_blueprint(routes.bp)
 
     return app
-
-create_app()

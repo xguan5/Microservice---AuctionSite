@@ -36,11 +36,45 @@ def get_user_details(username):
         print(response.json())
         return response.json()
 
-def add_to_watchlist(username, auction_id):
+def add_to_cart(username, auction_id):
 
-    url = 'http://{}:{}/add_to_watchlist/{}&{}'.format(get_ip(), get_port(), username, auction_id)
+    url = 'http://{}:{}/api/add_to_cart/{}&{}'.format(get_ip(), get_port(), username, auction_id)
 
-    response = requests.get(url=url, data=data)
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def add_to_watchlist(username, data):
+    
+
+    url = 'http://{}:{}/api/add_to_watchlist/{}'.format(get_ip(), get_port(), username)
+
+    print(url)
+    response = requests.post(url, data)
+
+    print(response.status_code)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def get_cart(username):
+
+    url = 'http://{}:{}/api/view_cart/{}'.format(get_ip(), get_port(), username)
+
+    response = requests.get(url=url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+def clear_cart(username):
+
+    url = 'http://{}:{}/api/clear_cart/{}'.format(get_ip(), get_port(), username)
+
+    response = requests.get(url=url)
 
     if response.status_code == 200:
         print(response.json())

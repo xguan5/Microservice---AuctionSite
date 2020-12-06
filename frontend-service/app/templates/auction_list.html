@@ -8,52 +8,81 @@
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <title>Auction Site</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
+    <style>
+      .highlight {
+        cursor: pointer;
+        background-color: lightblue;
+      }
 
+    </style>
 </head>
 
 <body>
     <div class="request-overlay hidden" id="request-overlay"></div>
     <div class="sr-root">
         <div class="sr-main">
-          <header class="sr-header">
-            <div class="sr-header__logo"></div>
-          </header>
+          <div class="row">
+            <div class="col-xl">
+              <header class="sr-header">
+                <div class="sr-header__logo"></div>
+              </header>
+            </div>
+            <div class="col-xl">
+              <div class="list-group">
+                <a href="{{ url_for('routes.user_details', username=session.get('username')) }}" class="list-group-item list-group-item-action ">Hello {{ session.get('username') }} </a>
+                <a href="{{ url_for('routes.logout') }}" class="list-group-item list-group-item-action ">Logout </a>
+                <a href="{{ url_for('routes.create_auction') }}" class="list-group-item list-group-item-action ">Post an Item </a>
+                <a href="{{ url_for('routes.get_cart') }}" class="list-group-item list-group-item-action ">Cart </a>
+                {% if session.is_admin %}<a href="{{ url_for('routes.admin') }}" class="list-group-item list-group-item-action "> Admin Console </a> {% endif %}
+              </div>
+            </div>
+          </div>
+
           <div class="sr-payment-summary payment-view">
-            <h3 class="order-amount"><a href="{{ url_for('routes.user_details', username=session.get('username')) }}"> {{ session.get('username') }} </a> - <a href="{{ url_for('routes.logout') }}"> logout </a>
-              {% if session.is_admin %}  - <a href="{{ url_for('routes.admin') }}"> Admin Console </a> {% endif %}</h3>
-            <hr>
-            <h1 class="order-amount">Auction List - 
-              {% if sort == 'end_time' %}
-              <a href="{{ url_for('routes.auction_list', sort='start_time') }}"> Sort by Start Times </a>
-              {% else %}
-              <a href="{{ url_for('routes.auction_list', sort='end_time') }}"> Sort by End Times </a>
-              {% endif %}
-            </h1>
+              <hr>
             <div class="sr-legal-text" style="text-align: left;">
-                <hr>
-                <h5>Auctions posted now - <a href="{{ url_for('routes.create_auction') }}"> Create Auction </a></h5>   
-                <hr>
                 <form method="POST" action="{{ url_for('routes.auction_list', sort=sort) }}">
-                  <h3>Search</h3>
-                  <input type="text" name="search_term">
-                    <button
-                    type="submit"
-                    style="width: 100%"
-                >
-                <span id="button-text" >Search</span>
-                </button>
+                  <h3>{% if sort == 'end_time' %}
+                  <a href="{{ url_for('routes.auction_list', sort='start_time') }}"> Sort by Start Times </a>
+                  {% else %}
+                  <a href="{{ url_for('routes.auction_list', sort='end_time') }}"> Sort by End Times </a>
+                  {% endif %}</h3>     
+                  <div class="row">
+                    <div class="col-xl-9">
+                      <input type="text" name="search_term" placeholder="Search Anything..." >
+                    </div>
+                    <div class="col-xl-3">
+                      <button
+                      type="submit"
+                      style="width: 100%; margin-top: 0px"
+
+                      >
+                  <span id="button-text"  >Search</span>
+                  </button>
+                    </div>
+                  </div>
+                  
+
                 </form>
             </div>
           </div>
           {% for auction in auction_list %}    
-          <div class="pricing-option">
+          <div class="pricing-option" data-target="{{ url_for('routes.get_auction_details', auction_id=auction.id) }}">
+            
               <h1>{{ auction.name }}</h1>
+              
               <hr>
+              <div class="row">
+                <div class="col">
               <h5>{{ auction.item.name }}</h5>   
               <ul>
+                  <li>{{ auction.status }}</li>
                   <li>{{ auction.item.description }}</li>
                   <li>Category: {{ auction['item']['category_details']['name'] }}</li>
                   <li>${{ auction.current_bid }} Current Bid</li>
@@ -61,11 +90,15 @@
                   <li>Auction Starts: {{ auction.start_time }} </li>
                   <li>Auction Ends: {{ auction.end_time }} </li>
               </ul>
-                <a 
-                    href="{{ url_for('routes.get_auction_details', auction_id=auction.id) }}"
-                    style="width: 100%"
-                >
-                <span id="button-text" >Open</span>
+              </div>
+              <div class="col">
+                <div class="card">
+                  <div class="card-body">
+                <img src="{{ auction.image_url }}" class="img-fluid" alt="Responsive image">
+                    </div>
+                </div>
+              </div>
+              </div>
             </a>
           </div>
           {% endfor %}
@@ -80,14 +113,23 @@
     <!-- JQuery
     ================================================== -->
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-    
-    <!-- Mask (For Phone Numbers)
-    ================================================== -->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.mask.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <!-- IN2L
+    <!-- Custom
     ================================================== -->
     <script>
+      $(".pricing-option").mouseover(function() {
+          $(".highlight").removeClass("highlight");  
+          $(this).addClass('highlight')
+          
+      }).mouseout(function(e) {
+        $(this).removeClass("highlight");
+      });
+      $(".pricing-option").click( function(){
+        window.location = $(this).data('target')
+      });
     </script>
 </body>
 </html>

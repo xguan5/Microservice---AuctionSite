@@ -52,8 +52,6 @@
                 <hr>
                 <h5>Name:</h5>
                 <input type="text" name="auction_name" value="{{ auction.name }} " >
-                <h5>Status:</h5>
-                <input type="text" name="status" value="{{ auction.status }} " >
                 <h5>Start Bid Price:</h5>
                 <input type="text" name="start_bid_price" value="{{ auction.start_bid_price }} " >
                 <h5>Bid Increment:</h5>
@@ -67,7 +65,8 @@
                 <h5>Auction Length (hours):</h5>
                 <input type="text" name="duration" >
                 <input type="text" style="display: none" name="creator" value="{{session.username}}">
-
+                <h5>Image Url:</h5>
+                <input type="text" name="image_url" value="https://images-na.ssl-images-amazon.com/images/I/81gd3uyxc3L._AC_SL1500_.jpg">
                 <button
                     type="submit"
                     style="width: 100%"

@@ -11,12 +11,15 @@ def get_port():
 notification: 5007
 """
 
-def create_user(data):
+def create_shipment(auction_id):
 
-    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/delivery/create/{}'.format(get_ip(), get_port(), auction_id)
+
+    data = {'package_size': 'medium', 'courier': 'DHL', 'shipping_option': 'standard'}
 
     response = requests.post(url=url, data=data)
 
     if response.status_code == 200:
         print(response.json())
         return response.json()
+
