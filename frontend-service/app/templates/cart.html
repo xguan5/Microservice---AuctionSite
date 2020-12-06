@@ -40,21 +40,23 @@
               <ul>
                   <li>{{ auction.price }}</li>
               </ul>
-                <a 
+                <!-- <a 
                     href="{{ url_for('routes.get_auction_details', auction_id=auction.id) }}"
                     style="width: 100%"
                 >
                 <span id="button-text" >Remove</span>
-            </a>
+                
+            </a>-->
           </div>
           {% endfor %}
-          <a 
-          href="{{ url_for('routes.checkout', total=total) }}"
-          style="width: 100%"
+            <button
+                type="submit"
+                style="width: 100%"
+                id="checkout-btn"
+                data-target="{{ url_for('routes.checkout', total=total) }}"
             >
-            <span id="button-text" >Checkout</span>
-        </a>
-          
+            <span id="button-text"  >Checkout</span>
+            </button>
         </div>
       </div>
  
@@ -69,9 +71,12 @@
     ================================================== -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.mask.js') }}"></script>
 
-    <!-- IN2L
+    <!-- Custom
     ================================================== -->
     <script>
+      $("#checkout-btn").click( function(){
+        window.location = $(this).data('target')
+      });
     </script>
 </body>
 </html>

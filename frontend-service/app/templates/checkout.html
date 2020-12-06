@@ -34,24 +34,45 @@
           {% if action == 'done' %}
           <div class="pricing-option">
             
-                <h5>Success!</h5>
-                <a  href="{{ url_for('routes.auction_list') }}">Back</a>
+                <h1>Thank you for your purchase!</h1>
+                <h1><a  href="{{ url_for('routes.auction_list') }}">Find something else to buy</a></h1>
             
           </a>
         </div>         
           {% else %}
           <div class="pricing-option">
-              <ul>
-                  <li>Total: ${{ total_amount }}</li>
-              </ul>
+              <h1>Total Due: ${{ total_amount }}</h1>
+              <hr>
+              <form method="POST" action="{{ url_for('routes.purchase') }}">  
+                <h5>Cardholder Name:</h5>
+                <input type="text" name="billing_name" >
+                <h5>Card Number:</h5>
+                <input type="text" name="card_num" >
+                <h5>Exp Date:</h5>
+                <input type="text" name="exp_date" >
+                <h5>CSV:</h5>
+                <input type="text" name="csv_code" >
+                <h5>Address 1:</h5>
+                <input type="text" name="billing_address1" >
+                <h5>Address 2:</h5>
+                <input type="text" name="billing_address2" >
+                <h5>City:</h5>
+                <input type="text" name="billing_city" >
+                <h5>State:</h5>
+                <input type="text" name="billing_state" >
+                <h5>Zip:</h5>
+                <input type="text" name="billing_zip" >
+                <input type="text" name="billing_country" value="USA" style="display: none">
+                  <button
+                      type="submit"
+                      style="width: 100%"
+                  >
+                  <span id="button-text" >Purchase</span>
+                  </button>
+              </form>
+  
             </a>
           </div>
-          <a 
-          href="{{ url_for('routes.purchase') }}"
-          style="width: 100%"
-            >
-            <span id="button-text" >Purchase</span>
-        </a>
         {% endif %}
           
         </div>

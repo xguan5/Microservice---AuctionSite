@@ -63,8 +63,9 @@ def create_auction():
 	end_time = content['end_time']
 	creator = content['creator']
 	item = content['item']
+	image_url = content['image_url']
 
-	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
+	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item, image_url)
 	log_result = json.dumps({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
 
 	add_log(log_result)
@@ -263,6 +264,16 @@ def get_auction_winner(id):
 	return jsonify({'result': auction.winner})
 
 #return metric of auctions within some time interval, rabbitmq msg to notification
+
+#return the highest bid so far
+@bp.route('/api/auction/all-bids/<username>', methods=['GET'])
+def all_bids(username):
+	all_bids = []
+	for row in models.Bidding.query.filter_by(user_id=username):
+		all_bids.append(row.to_json())
+		
+	return json.dumps({'content': all_bids})
+    
 
 #return all active auctions
 

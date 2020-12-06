@@ -11,6 +11,9 @@ from . import auction_client as auctions
 from . import authentication_client as auth
 from . import item_client as items
 from . import notification_client as notifications
+from . import payment_client as payments
+from . import delivery_client as delivery
+
 import psycopg2
 
 bp = Blueprint('routes', __name__, url_prefix='/')
@@ -59,7 +62,6 @@ def auction_list(sort='start_time'):
     return_list = []
     for auction in auction_list:
         if search_term:
-            print(auction['item']['category_details']['name'], ' ' )
             if auction['item']['category_details']['name'] and search_term.lower() in auction['item']['category_details']['name'].lower():
                 return_list.append(auction)
             elif auction['item']['name'] and search_term.lower() in auction['item']['name'].lower():
@@ -121,7 +123,8 @@ def create_auction():
             'start_time': start_datetime,
             'end_time': end_datetime,
             'creator': session.get('username'),
-            'item': item_result['result']['id']
+            'item': item_result['result']['id'],
+            'image_url': request.form['image_url']
         }
 
         auction_result = auctions.create_auction(auction_data)
@@ -196,12 +199,12 @@ def end_auction(auction_id):
 
     return get_auction_details(auction_id=auction_id)
 
-@bp.route('/auction/add-to-watchlist/<auction_id>', methods=['GET', 'POST'])
-def add_to_watchlist(auction_id):
+@bp.route('/auction/add-to-watchlist', methods=['GET', 'POST'])
+def add_to_watchlist():
 
-    response = users.add_to_watchlist(session.get('username', auction_id))
+    response = users.add_to_watchlist(session.get('username'), request.form)
 
-    return get_auction_details(auction_id=auction_id)
+    return user_details(username=session.get('username'))
 
 @bp.route('/auction/flag-item/<item_id>/<auction_id>', methods=['GET', 'POST'])
 def flag_item(item_id, auction_id):
@@ -233,7 +236,7 @@ def get_cart():
 
 @bp.route('/checkout/<total>', methods=['GET', 'POST'])
 def checkout(total):
-
+    
     template = render_template('checkout.html', action='buy', total_amount=total)
 
     return template
@@ -241,7 +244,21 @@ def checkout(total):
 @bp.route('/purchase', methods=['GET', 'POST'])
 def purchase():
 
-    #users.clear_cart()
+    try:
+        users.clear_cart(session.get('username'))
+    except Exception as e:
+        print(str(e))
+        pass
+    try:
+        payments.create_payment_method(session.get('username'), data=request.form)
+    except Exception as e:
+        print(str(e))
+        pass
+    try:
+        delivery.create_shipment(auction_id)
+    except Exception as e:
+        print(str(e))
+        pass
 
     template = render_template('checkout.html', action='done')
 
@@ -351,8 +368,19 @@ def user_details(username):
 
     user_details = users.get_user_details(username)
 
+    all_bids = auctions.get_all_bids(username=session.get('username'))
+    auction_list1 = []
+    for bid in all_bids['content']:
+        if bid['auction'] not in auction_list1:
+            auction_list1.append(bid['auction'])
+
+    auction_list2 = []
+    for auction in auction_list1:
+        auction_list2.append(auctions.get_auction_details(auction)['result'])
+
     template = render_template('user_details.html', 
-        user_details=user_details.get('content')
+        user_details=user_details.get('content'),
+        auction_list=auction_list2
     )
     
     return template
@@ -364,6 +392,9 @@ def admin():
     flags = items.get_all_flags()
     categories = items.get_all_categories()
     print(flags)
+
+    for flag in flags:
+        flag['item'] = items.get_item_details(flag['items'])['result']
     template = render_template('admin.html', categories=categories, flags=flags)
 
     return template

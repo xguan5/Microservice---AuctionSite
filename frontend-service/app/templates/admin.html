@@ -51,7 +51,12 @@
               <h3>Flagged Items</h3>
               <hr>
               {% for flag in flags %}
+              <hr>
               <h5>Flag: {{ flag.name }} </h5>
+              <ul>
+                <li>{{flag.item.name }}</li>
+                <li>{{flag.item.description}}</li>
+              </ul>
               {% endfor %}
         </div>
 

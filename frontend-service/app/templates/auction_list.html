@@ -37,6 +37,7 @@
               <div class="list-group">
                 <a href="{{ url_for('routes.user_details', username=session.get('username')) }}" class="list-group-item list-group-item-action ">Hello {{ session.get('username') }} </a>
                 <a href="{{ url_for('routes.logout') }}" class="list-group-item list-group-item-action ">Logout </a>
+                <a href="{{ url_for('routes.create_auction') }}" class="list-group-item list-group-item-action ">Post an Item </a>
                 <a href="{{ url_for('routes.get_cart') }}" class="list-group-item list-group-item-action ">Cart </a>
                 {% if session.is_admin %}<a href="{{ url_for('routes.admin') }}" class="list-group-item list-group-item-action "> Admin Console </a> {% endif %}
               </div>
@@ -93,7 +94,7 @@
               <div class="col">
                 <div class="card">
                   <div class="card-body">
-                <img src="https://images-na.ssl-images-amazon.com/images/I/81gd3uyxc3L._AC_SL1500_.jpg" class="img-fluid" alt="Responsive image">
+                <img src="{{ auction.image_url }}" class="img-fluid" alt="Responsive image">
                     </div>
                 </div>
               </div>
