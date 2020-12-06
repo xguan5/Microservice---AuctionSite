@@ -24,8 +24,10 @@ def add_log(msg):
 		channel.basic_publish(exchange='logs', routing_key='', body=msg)
 		#channel.queue_declare(queue='hello')
 		#channel.basic_publish(exchange='', routing_key='hello', body=msg)
+		print(connection)
+		print(msg)
 		connection.close()
-		return " [x] Sent {}" % msg
+		return " [x] Sent %s" % msg
 	except Exception as e:
 		print(str(e))
 		return "Pass"
