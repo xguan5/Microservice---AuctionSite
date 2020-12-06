@@ -56,8 +56,6 @@ def auction_list(sort='start_time'):
 
     auction_list = sorted(auction_list, key = lambda i: i[sort])
 
-    print('CHIP ', search_term)
-
     return_list = []
     for auction in auction_list:
         if search_term:
@@ -72,6 +70,9 @@ def auction_list(sort='start_time'):
                 return_list.append(auction)
         else:
             return_list.append(auction)
+
+    return_list = list(filter(lambda d: d['status'] == 'Active', return_list))
+
 
     template = render_template('auction_list.html', 
         auction_list=return_list,
@@ -101,7 +102,6 @@ def create_auction():
             category_response = items.create_category(request.form['new_category'])
             category = category_response['result']['id']
         else:
-            raise ValueError('hmm')
             category = request.form['category']
             
         item_data = {
@@ -146,7 +146,7 @@ def update_item(item_id, auction_id):
     return redirect(url_for('routes.get_auction_details', auction_id=auction_id))
 
 @bp.route('/auction/bid/<auction_id>', methods=['GET', 'POST'])
-def place_bid(auction_id):
+def place_bid(auction_id, message=None):
     
     try:
         amount = int(request.form.get('bid_amount'))
@@ -161,23 +161,34 @@ def place_bid(auction_id):
         bid_error = response['content']
     else:
         bid_error = None
+        message = "Bid Placed!"
 
-    return get_auction_details(auction_id=auction_id, bid_error=bid_error)
+    return get_auction_details(auction_id=auction_id, bid_error=bid_error, message=message)
 
 @bp.route('/auction/buy-now/<auction_id>', methods=['GET', 'POST'])
 def buy_now(auction_id):
 
-    print('Hello')
+    print('Hello %s' % request.form)
+
+    amount = request.form.get('buy_now_price_bid')
+    try:
+        amount = amount.split('.')[0]
+    except Exception as e:
+        pass
+
+    amount = int(amount)
 
     users.add_to_cart(session.get('username'), auction_id)
+    auctions.update_auction(auction_id, data={'status': 'end'})
+    auctions.place_bid(auction_id, session.get('username'), amount, datetime.datetime.now())
 
-    return get_auction_details(auction_id=auction_id)
+    return get_auction_details(auction_id=auction_id, bid_error=None, message="Item Added to Cart!")
 
 @bp.route('/auction/end-auction/<auction_id>', methods=['GET', 'POST'])
 def end_auction(auction_id):
 
     data = {
-        'status': 'ended',
+        'status': 'end',
         'end_time': datetime.datetime.now()
     }
 
@@ -237,7 +248,7 @@ def purchase():
     return template
 
 @bp.route('/auction/<auction_id>', methods=['GET'])
-def get_auction_details(auction_id, bid_error=None):
+def get_auction_details(auction_id, bid_error=None, message=None):
 
     auction_details = auctions.get_auction_details(auction_id)
     item_details = items.get_item_details(auction_details['result']['item'])
@@ -254,7 +265,7 @@ def get_auction_details(auction_id, bid_error=None):
     highest_bid = auctions.get_highest_bid(auction_id)
 
     try:
-        next_bid = int(highest_bid['max_bid'] + auction_details['result']['inc_bid_price'])
+        next_bid = max( int(highest_bid['max_bid']) + int(auction_details['result']['inc_bid_price']), int(auction_details['result']['start_bid_price']) + int(auction_details['result']['inc_bid_price']))
     except Exception as e:
         print(e)
         next_bid = 0
@@ -265,7 +276,9 @@ def get_auction_details(auction_id, bid_error=None):
         categories=categories,
         highest_bid=highest_bid['max_bid'],
         bid_error=bid_error,
-        next_bid=next_bid
+        next_bid=next_bid,
+        start_bid = auction_details['result']['start_bid_price'],
+        message=message
     )
     
     return template

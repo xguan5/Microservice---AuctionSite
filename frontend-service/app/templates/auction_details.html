@@ -22,7 +22,7 @@
           </header>
           <div class="sr-payment-summary payment-view">
             <h1 class="order-amount">{{ auction.name }} - <a href="{{ url_for('routes.auction_list') }}"> Back to Auctions </a> </h3>
-           
+            {% if message %} <h3 style="color: green">{{ message }}</h3> {% endif %}
           </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
@@ -87,6 +87,7 @@
               <hr>
               {% if bid_error %} <h3 style="color: red">{{ bid_error }}</h3> {% endif %}
               <h4>Current Bid: {{ highest_bid }}</h4>
+              <h4>Minimum Starting Bid: {{ start_bid }}</h4>
               <h4>Minimum Next Bid: {{ next_bid }}</h4>
               <form method="POST" action="{{ url_for('routes.place_bid', auction_id=auction.id) }}">
                 <input type="text" name="bid_amount" value="{{ next_bid }}">
@@ -96,6 +97,7 @@
               <hr>
               <h4>Buy Now Price: {{ auction.buy_now_price }}</h4>
               <form method="POST" action="{{ url_for('routes.buy_now', item_id=item.id, auction_id=auction.id) }}">
+                <input type="text" name="buy_now_price_bid" style="display: none" value="{{auction.buy_now_price}}">
                 <button type="submit" style="width: 100%"><span id="button-text" >Buy Now</span></button>
               </form>
               <form method="POST" action="{{ url_for('routes.add_to_watchlist', item_id=item.id, auction_id=auction.id) }}">

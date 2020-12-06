@@ -12,7 +12,7 @@ def get_port():
 def get_all_auctions():
     url = 'http://{}:{}/api/auctions'.format(get_ip(), get_port())
     response = requests.get(url=url)
-
+    
     if response.status_code == 200:
         print(response.json())
         return response.json()

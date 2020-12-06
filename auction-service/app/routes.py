@@ -178,6 +178,12 @@ def create_bid(id):
 	incremental_bid = json.loads(inc_bid(id).data.decode('utf-8').replace("'", '"'))
 	
 	auction = models.Auction.query.get(id)
+
+	print(bid_price, ' ', incremental_bid, ' ', cur_high_bid)
+	print(int(bid_price) - int(cur_high_bid))
+	print(int(incremental_bid))
+	print(int(bid_price) - int(cur_high_bid) < int(incremental_bid))
+	print(int(bid_price) - int(starting_bid))
 	if auction.end_time < datetime.now() or auction.status == 'end':
 		success = False
 		return {'result':success,'content':'Auction is already over, cannot place new bid'}
@@ -188,13 +194,19 @@ def create_bid(id):
 	elif int(bid_price) < int(starting_bid):
 		success = False
 		return {'result':success,'content':'new bid must be higher than starting bid price'}
-	elif int(bid_price) - int(cur_high_bid) < int(incremental_bid) or int(bid_price) - int(starting_bid) < int(incremental_bid):
+	elif int(bid_price) - int(cur_high_bid) < int(incremental_bid) :
 		success = False
 		return {'result':success,'content':'new bid must be higher than existing bids at least by the incremental amount'}	
+	elif int(bid_price) - int(starting_bid) < int(incremental_bid):
+		success = False
+		return {'result':success,'content':'new bid must be higher than starting bid at least by the incremental amount'}	
 	else:
-		prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json['user']
+		try:
+			prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json['user']
+		except Exception as e:
+			prev_high_bidder = None
 		auction = models.Auction.query.get(id)
-		seller = auction.creator
+		seller = auction.creator_id
 
 		new_bid = models.Bidding(bidder,id,bid_price,bid_placed)
 
@@ -205,8 +217,10 @@ def create_bid(id):
 		log_result = json.dumps({'service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)})
 		add_log(log_result)
 		#new bid placed, notify the previous highest bidder
-		note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
-		add_log(note_msg_prevhigh)
+
+		if prev_high_bidder:
+			note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
+			add_log(note_msg_prevhigh)
 		#new bid placed, notify the seller
 		note_msg_seller = json.dumps({'timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
 		add_log(note_msg_seller)
