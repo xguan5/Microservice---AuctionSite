@@ -14,7 +14,7 @@ db.init_app(app)
 
 #set up receiver end of rabbitmq
 credentials = pika.PlainCredentials(username='guest', password='guest')
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='messaging',port=5672,credentials=credentials))
 
 channel = connection.channel()
 

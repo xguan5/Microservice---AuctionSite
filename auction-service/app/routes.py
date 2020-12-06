@@ -18,7 +18,7 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 def add_log(msg):
 	try:
 		credentials = pika.PlainCredentials(username='guest', password='guest')
-		connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
+		connection = pika.BlockingConnection(pika.ConnectionParameters(host='messaging',port=5672,credentials=credentials))
 		channel = connection.channel()
 		channel.exchange_declare(exchange='logs', exchange_type='fanout')
 		channel.basic_publish(exchange='logs', routing_key='', body=msg)
@@ -27,6 +27,7 @@ def add_log(msg):
 		connection.close()
 		return " [x] Sent {}" % msg
 	except Exception as e:
+		print(str(e))
 		return "Pass"
     
 
