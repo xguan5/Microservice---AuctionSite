@@ -405,7 +405,7 @@ pre {
 :root {
   --accent-color: #3d81e6;
   --headline-color: var(--accent-color);
-  --logo-image: url("/static/img/cs-logo.gif");
+  --logo-image: url("/static/img/cbay-logo.png");
 }
 
 .pasha-image-stack {
