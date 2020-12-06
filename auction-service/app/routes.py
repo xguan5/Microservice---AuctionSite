@@ -203,9 +203,10 @@ def create_bid(id):
 		add_log(log_result)
 		#new bid placed, notify the previous highest bidder
 		note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
+		add_log(note_msg_prevhigh)
 		#new bid placed, notify the seller
 		note_msg_seller = json.dumps({'timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
-
+		add_log(note_msg_seller)
 
 		return jsonify({'result': success, ' content': new_bid.to_json()})
 
