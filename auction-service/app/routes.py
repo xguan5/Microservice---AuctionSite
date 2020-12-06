@@ -13,15 +13,17 @@ import pika
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
-#set up rabbitmq
+#set up rabbitmq, pubsub
 @bp.route('/add-job', methods=['POST'])
 def add_log(msg):
 	try:
 		credentials = pika.PlainCredentials(username='guest', password='guest')
 		connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
 		channel = connection.channel()
-		channel.queue_declare(queue='hello')
-		channel.basic_publish(exchange='', routing_key='hello', body=msg)
+		channel.exchange_declare(exchange='logs', exchange_type='fanout')
+		channel.basic_publish(exchange='logs', routing_key='', body=msg)
+		#channel.queue_declare(queue='hello')
+		#channel.basic_publish(exchange='', routing_key='hello', body=msg)
 		connection.close()
 		return " [x] Sent {}" % msg
 	except Exception as e:
@@ -187,6 +189,10 @@ def create_bid(id):
 		success = False
 		return {'result':success,'content':'new bid must be higher than existing bids at least by the incremental amount'}	
 	else:
+		prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json['user']
+		auction = models.Auction.query.get(id)
+		seller = auction.creator
+
 		new_bid = models.Bidding(bidder,id,bid_price,bid_placed)
 
 		models.db.session.add(new_bid)
@@ -195,6 +201,12 @@ def create_bid(id):
 		success = True
 		log_result = json.dumps({'service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)})
 		add_log(log_result)
+		#new bid placed, notify the previous highest bidder
+		note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
+		#new bid placed, notify the seller
+		note_msg_seller = json.dumps({'timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
+
+
 		return jsonify({'result': success, ' content': new_bid.to_json()})
 
 #no need for update bid and delete bid, since we won't allow user to do that
@@ -232,7 +244,8 @@ def get_auction_winner(id):
 	auction = models.Auction.query.get(id)
 	return jsonify({'result': auction.winner})
 
-#return metric of auctions within some time interval
+#return metric of auctions within some time interval, rabbitmq msg to notification
 
 #return all active auctions
 
+#if an auction ends in predetermined timeframe, msg notification service
