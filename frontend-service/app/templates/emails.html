@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -10,7 +11,7 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
-   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
+
 </head>
 
 <body>
@@ -21,40 +22,37 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">Hello {{ session.username }} - <a href="{{url_for('routes.emails') }}">Message Center</a></h1>
+            <h3 class="order-amount"><a href="{{ url_for('routes.user_details', username=session.get('username')) }}"> {{ session.get('username') }} </a> 
+              - <a href="{{ url_for('routes.logout') }}"> Logout </a> 
+            <hr>
+            <h1 class="order-amount">Message Center - <a href="{{ url_for('routes.auction_list') }}"> Home </a> 
+            </h1>
             <div class="sr-legal-text" style="text-align: left;">
+                <hr>
+                <h5>Received Messages</h5>   
+                {% if status %}<h5 style="color: green">{{ status }}</h5> {% endif %}
                 <hr>
             </div>
           </div>
-
+          {% for email in emails %}    
           <div class="pricing-option">
-              <form method="POST" action="{{ url_for('routes.category_update') }}">
-                <h3>Item Categories</h3>
-                <hr>
-                {% for category in categories %}
-                <h5>{{ category.name }}:</h5>
-                <input type="text" name="{{ category.id }}" value="{{ category.name }}">
-                {% endfor %}
-                <h5>Add New:</h5>
-                <input type="text" name="new_category"  >
-                <button
-                    type="submit"
-                    style="width: 100%"
-                >
-                <span id="button-text" >Save</span>
-                </button>
-            </form>
-          </div>
-
-          <div class="pricing-option">
-            <form method="POST" action="{{ url_for('routes.category_update') }}">
-              <h3>Flagged Items</h3>
+              <h1>From: {{ email.sender }}</h1>
+              <h3>Subject: {{ email.subject }}</h3>
               <hr>
-              {% for flag in flags %}
-              <h5>Flag: {{ flag.name }} </h5>
-              {% endfor %}
-        </div>
-
+                  {{ email.message }}
+                  <hr>
+                  <form method="POST" action="{{ url_for('routes.email_response', message_id=email.e_id) }}">
+                    <textarea rows="4" style="width: 100%" type="text" name="message_text" ></textarea>
+                    <button
+                        type="submit"
+                        style="width: 100%"
+                    >
+                    <span id="button-text" >Reply</span>
+                    </button>
+                  </form>
+            </a>
+          </div>
+          {% endfor %}
           
         </div>
       </div>

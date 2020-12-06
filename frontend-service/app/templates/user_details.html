@@ -22,7 +22,7 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">{{ user_details.username }} </h1>
+            <h1 class="order-amount">{{ user_details.username }} - <a href="{{url_for('routes.auction_list')}}">Home</a> </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
                 <h5>User details</h5>   

@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -10,7 +11,7 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
-   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">-->
+
 </head>
 
 <body>
@@ -21,42 +22,40 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">Hello {{ session.username }} - <a href="{{url_for('routes.emails') }}">Message Center</a></h1>
+            <h3 class="order-amount"><a href="{{ url_for('routes.user_details', username=session.get('username')) }}"> {{ session.get('username') }} </a> 
+              - <a href="{{ url_for('routes.logout') }}"> Logout </a> 
+            <hr>
+            <h1 class="order-amount">Checkout
+            </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
             </div>
           </div>
-
+          {% if action == 'done' %}
           <div class="pricing-option">
-              <form method="POST" action="{{ url_for('routes.category_update') }}">
-                <h3>Item Categories</h3>
-                <hr>
-                {% for category in categories %}
-                <h5>{{ category.name }}:</h5>
-                <input type="text" name="{{ category.id }}" value="{{ category.name }}">
-                {% endfor %}
-                <h5>Add New:</h5>
-                <input type="text" name="new_category"  >
-                <button
-                    type="submit"
-                    style="width: 100%"
-                >
-                <span id="button-text" >Save</span>
-                </button>
-            </form>
+            
+                <h5>Success!</h5>
+                <a  href="{{ url_for('routes.auction_list') }}">Back</a>
+            
+          </a>
+        </div>         
+          {% else %}
+          <div class="pricing-option">
+              <ul>
+                  <li>Total: ${{ total_amount }}</li>
+              </ul>
+            </a>
           </div>
-
-          <div class="pricing-option">
-            <form method="POST" action="{{ url_for('routes.category_update') }}">
-              <h3>Flagged Items</h3>
-              <hr>
-              {% for flag in flags %}
-              <h5>Flag: {{ flag.name }} </h5>
-              {% endfor %}
-        </div>
-
+          <a 
+          href="{{ url_for('routes.purchase') }}"
+          style="width: 100%"
+            >
+            <span id="button-text" >Purchase</span>
+        </a>
+        {% endif %}
           
         </div>
+        
       </div>
  
     <!-- End Container-->

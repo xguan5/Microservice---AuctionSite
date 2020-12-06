@@ -10,6 +10,7 @@ from . import user_client as users
 from . import auction_client as auctions
 from . import authentication_client as auth
 from . import item_client as items
+from . import notification_client as notifications
 import psycopg2
 
 bp = Blueprint('routes', __name__, url_prefix='/')
@@ -346,8 +347,6 @@ def user_details(username):
 
 @bp.route('/admin', methods=['GET', 'POST'])
 def admin():
-    if request.method == 'POST':
-        categories = request.form
 
     flags = items.get_all_flags()
     categories = items.get_all_categories()
@@ -355,6 +354,30 @@ def admin():
     template = render_template('admin.html', categories=categories, flags=flags)
 
     return template
+
+@bp.route('/emails', methods=['GET', 'POST'])
+def emails(status=None):
+
+    emails = notifications.get_emails()
+
+    blocked_senders = ['googlecommunityteam-noreply@google.com', 'no-reply@accounts.google.com']
+    emails_return = list(filter(lambda d: d['sender'] not in blocked_senders, emails))
+    emails_return_2 = list(filter(lambda d: d['needs_reply'] == True, emails_return))
+
+    template = render_template('emails.html', emails=emails_return_2, status=status)
+
+    return template
+
+@bp.route('/email_response/<message_id>', methods=['GET', 'POST'])
+def email_response(message_id):
+
+    print(request.form)
+
+    message = request.form.get('message_text')
+
+    notifications.send_email(message_id, message)
+
+    return emails(status="Message Sent!")
 
 @bp.route('/admin/category-update', methods=['GET', 'POST'])
 def category_update():
