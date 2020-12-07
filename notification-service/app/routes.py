@@ -1,21 +1,25 @@
 import os
 import sys
-import datetime
+from datetime import datetime, timedelta
 import traceback
 from flask import (Flask, request, session, g, redirect, url_for, abort,
                    render_template, flash, escape, json, jsonify, Response,
                    Blueprint)
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.date import DateTrigger
 import requests
 import email, imaplib
 import smtplib, ssl
 from . import models
 
 bp = Blueprint('routes', __name__, url_prefix='/')
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 ###########################
 # SEND AUTOMATED MESSAGES #
 ###########################
-@bp.route('/api/send_auto_msg', methods=['GET'])
+@bp.route('/api/send_auto_msg', methods=['POST'])
 def send_auto_msg():
     """
     Send an automated message that does not need true customization or
@@ -26,13 +30,15 @@ def send_auto_msg():
     auto_messages = {
         'watchlist match': 'A new item that matches your watchlist has been posted.\nID: {}',
         'new bid': 'A buyer has bid on your item!\nItem name: {}\nAuction ID: {}\nBid amount: {}',
-        'outbid': 'Another buyer has outbid you on an auction\nItem name: {}\nAuction ID: {}\nYour bid amount: {}\nTheir bid amount: {}'
+        'outbid': 'Another buyer has outbid you on an auction\nItem name: {}\nAuction ID: {}\nYour bid amount: {}\nTheir bid amount: {}',
+        'time': 'An auction you are involved in is ending soon.\nItem name: {}\nAuction ID: {}\nTime remaining:{}'
     }
 
     auto_subjects = {
         'watchlist match': 'You have a new match from your watchlist!',
         'new bid': 'Someone has bid on your auction!',
-        'outbid': 'Someone has outbid you on an auction!'
+        'outbid': 'Someone has outbid you on an auction!',
+        'time': 'An auction is ending soon!'
     }
 
     msg = auto_messages[content['msg']].format(*content['parameters'])
@@ -48,6 +54,86 @@ def send_auto_msg():
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
         server.login("teambottleneck@gmail.com", password)
         server.sendmail(sender, recipient, subject + '\n\n' + msg)
+
+
+@bp.route('/api/schedule_alerts', methods=['POST'])
+def schedule_alerts():
+    """
+    Schedules alerts to start, stop, and remind about each auction.
+    """
+
+    content = request.form
+
+    auc_id = content["auc_id"]
+
+    end_time = content["end_time"]
+    end_time = datetime.combine(datetime.strptime(end_time, '%Y-%m-%d'),
+                                datetime.strptime(end_time, '%H:%M').time())
+
+    start_time = content["start_time"]
+    start_time = datetime.combine(datetime.strptime(start_time, '%Y-%m-%d'),
+                                  datetime.strptime(start_time, '%H:%M').time())
+
+    # schedule start of auction
+    trigger = DateTrigger(run_date=start_time)
+    scheduler.add_job(trigger_auction, args=[auc_id, 'start'], trigger=trigger)
+
+    # schedule end of auction
+    trigger = DateTrigger(run_date=end_time)
+    scheduler.add_job(trigger_auction, args=[auc_id, 'end'], trigger=trigger)
+
+    # schedule 24-hr reminder
+    if end_time > datetime.now() + timedelta(hours=24):
+        trigger = DateTrigger(run_date=end_time - timedelta(hours=24))
+        scheduler.add_job(send_alerts, args=[auc_id, "24 hours"], trigger=trigger)
+
+    # schedule 1-hr reminder
+    if end_time > datetime.now() + timedelta(hours=1):
+        trigger = DateTrigger(run_date=end_time - timedelta(hours=1))
+        scheduler.add_job(send_alerts, args=[auc_id, "1 hour"], trigger=trigger)
+
+
+def trigger_auction(auc_id, action):
+    """
+    Start/end an auction.
+    """
+    url = 'http://auction:5000/api/auction/' + str(auc_id)
+    new_status = "Active" if action == "start" else "Completed" # is this the right terminology?
+    data = {'status': new_status}
+
+    response = requests.put(url, data=data)
+
+
+def send_alerts(auc_id, time_remaining):
+    """
+    Send alerts to seller and all bidders that an auction is ending a certain
+    amount of time.
+    """
+    # first, get the seller
+    url = 'http://auction:5000/api/auction/' + str(auc_id)
+
+    auction = requests.get(url)['result']
+    seller_id = auction['creator']
+
+    # then, get everyone who has bid (so far)
+    url += '/bids'
+
+    buyer_ids = requests.get(url)['result']
+    buyer_ids = [buyer[user_id] for buyer in buyer_ids]
+
+    # finally, send an automated email to all of these people
+    msg_url = 'http://notification:5000/api/send_auto_msg'
+    for user_id in [seller_id] + buyer_ids:
+        user_url = 'http://user:5000/api/view_profile/' + user_id
+        response = requests.get(msg_url)
+        recipient = response["content"]["email"]
+
+        data = {
+            'msg': 'time',
+            'parameters': [auction["item"], auc_id, time_remaining],
+            'user_email': recipient
+        }
+        requests.post(msg_url, data=data)
 
 
 #############################
@@ -99,6 +185,7 @@ def receive_messages():
             print('existing')
             pass
     return 'success'
+
 
 ##############################
 # REPLY TO CUSTOMER MESSAGES #

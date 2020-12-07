@@ -19,3 +19,4 @@ Werkzeug==1.0.1
 flask_sqlalchemy
 sqlalchemy
 psycopg2
+apscheduler
