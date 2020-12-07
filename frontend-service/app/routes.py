@@ -413,9 +413,9 @@ def admin():
         print(end_time)
         if end_time == today - datetime.timedelta(days=1):
             auctions_ended_yesterday += 1
-        elif end_time >= today - datetime.timedelta(days=7):
+        elif end_time >= (today - datetime.timedelta(days=7)) and end_time < today:
             auctions_ended_week += 1
-        elif end_time >= today - datetime.timedelta(days=31):
+        elif (end_time >= today - datetime.timedelta(days=31)) and end_time < today:
             auctions_ended_month += 1
 
     for flag in flags:
