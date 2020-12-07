@@ -115,6 +115,11 @@ def create_auction():
 
         item_result = items.create_item(item_data)
 
+        if not request.form.get('image_url') or request.form.get('image_url') == '':
+            image_url = 'https://lh3.googleusercontent.com/proxy/3SeeYKkyo-5HciaBCdqZrPukroxnUNAzTRgEjo5JDV-jnGHD8SDrDX8X6Uow0W1M5WgqdtrSja0bKhg83MJbBTNIpKNDJ5Bi9irj2uVNGt3JxSny'
+        else:
+            image_url = request.form.get('image_url')
+
         auction_data = {
             'name': request.form['auction_name'],
             'buy_now_price': request.form['buy_now_price'],
@@ -124,7 +129,7 @@ def create_auction():
             'end_time': end_datetime,
             'creator': session.get('username'),
             'item': item_result['result']['id'],
-            'image_url': request.form['image_url']
+            'image_url': image_url
         }
 
         auction_result = auctions.create_auction(auction_data)
@@ -405,8 +410,7 @@ def emails(status=None):
     emails = notifications.get_emails()
 
     blocked_senders = ['googlecommunityteam-noreply@google.com', 'no-reply@accounts.google.com']
-    emails_return = list(filter(lambda d: d['sender'] not in blocked_senders, emails))
-    emails_return_2 = list(filter(lambda d: d['needs_reply'] == True, emails_return))
+    emails_return_2 = list(filter(lambda d: d['sender'] not in blocked_senders, emails))
 
     template = render_template('emails.html', emails=emails_return_2, status=status)
 

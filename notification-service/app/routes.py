@@ -124,7 +124,7 @@ def get_messages():
     return jsonify(data)
 
 
-@bp.route('/api/reply_msg/<msg_id>', methods=['GET'])
+@bp.route('/api/reply_msg/<msg_id>', methods=['POST'])
 def reply_to_message(msg_id):
     """
     Sends a reply to a specific message.
@@ -150,5 +150,8 @@ def reply_to_message(msg_id):
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+        print('fire away')
         server.login(sender, password)
         server.sendmail(sender, recipient, subject + "\n\n" + msg)
+
+    return 'success'

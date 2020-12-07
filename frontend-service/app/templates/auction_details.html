@@ -21,12 +21,15 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">{{ auction.name }} - <a href="{{ url_for('routes.auction_list') }}"> Back to Auctions </a> </h3>
+            <h1 class="order-amount">{{ auction.name }} - <a href="{{ url_for('routes.auction_list') }}"> Back to Auctions </a> </h1>
+            <hr>
+            <h5>Posted By: <a href="{{ url_for('routes.user_details', username=auction.creator) }}">{{ auction.creator }}</a></h5>
             {% if message %} <h3 style="color: green">{{ message }}</h3> {% endif %}
           </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
                 <h5>{{ item.name }} </h5>   
+                
                 Started: {{ auction.start_time }}
             </div>
           </div>

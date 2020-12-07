@@ -29,7 +29,7 @@ def send_email(message_id, message):
 
     data = {'reply_text': message}
 
-    response = requests.get(url, data)
+    response = requests.post(url, data)
 
     if response.status_code == 200:
         print(response.json())
