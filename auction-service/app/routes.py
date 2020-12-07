@@ -64,14 +64,12 @@ def create_auction():
 	item = content['item']
 	image_url = content['image_url']
 
-<<<<<<< HEAD
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
 	log_result = json.dumps({'msg_type':'log','service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
-=======
+
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item, image_url)
 	log_result = json.dumps({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
 
->>>>>>> 1cf48d8b4b8735241427b4fb6551d5c9bf9dd1d7
 	add_log(log_result)
 
 	models.db.session.add(new_auction)
@@ -234,15 +232,15 @@ def create_bid(id):
 		log_result = json.dumps({'msg_type':'log','service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)})
 		add_log(log_result)
 		#new bid placed, notify the previous highest bidder
-<<<<<<< HEAD
+
 		note_msg_prevhigh = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
 		add_log(note_msg_prevhigh)
-=======
+
 
 		if prev_high_bidder:
 			note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
 			add_log(note_msg_prevhigh)
->>>>>>> 1cf48d8b4b8735241427b4fb6551d5c9bf9dd1d7
+
 		#new bid placed, notify the seller
 		note_msg_seller = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
 		add_log(note_msg_seller)
