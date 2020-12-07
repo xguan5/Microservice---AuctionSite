@@ -31,6 +31,4 @@ def send_email(message_id, message):
 
     response = requests.post(url, data)
 
-    if response.status_code == 200:
-        print(response.json())
-        return response.json()
+    return 'success'

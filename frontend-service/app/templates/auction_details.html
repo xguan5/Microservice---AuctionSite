@@ -68,12 +68,13 @@
                 <button type="submit" style="width: 100%"><span id="button-text" >Admin - End Auction</span></button>
               </form>
               {% endif %}
-              {% if session.is_admin and highest_bid == 0 %}
+              {% if session.username == auction.creator and highest_bid == 0 %}
               <form method="POST" action="{{ url_for('routes.end_auction', auction_id=auction.id) }}">
                 <button type="submit" style="width: 100%"><span id="button-text" >Poster - End Auction</span></button>
               </form>
               {% endif %}
           </div>
+          {% if can_edit %}
           <div class="pricing-option">
           <form method="POST" action="{{ url_for('routes.update_auction', auction_id=auction.id) }}">
             <h3>Auction Details</h3>
@@ -98,6 +99,7 @@
             </button>
           </form> 
           </div>
+          {% endif %}
         </div>
 
       </div>

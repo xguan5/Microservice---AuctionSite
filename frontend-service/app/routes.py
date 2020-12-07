@@ -288,6 +288,11 @@ def get_auction_details(auction_id, bid_error=None, message=None):
         print(e)
         next_bid = 0
 
+    if session.get('is_admin') or auction_details.get('result')['creator'] == session.get('username'):
+        can_edit = True
+    else:
+        can_edit = False
+
     template = render_template('auction_details.html', 
         auction=auction_details.get('result'),
         item=item_details.get('result'),
@@ -296,6 +301,7 @@ def get_auction_details(auction_id, bid_error=None, message=None):
         bid_error=bid_error,
         next_bid=next_bid,
         start_bid = auction_details['result']['start_bid_price'],
+        can_edit=can_edit,
         message=message
     )
     
