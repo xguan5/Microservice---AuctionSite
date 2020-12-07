@@ -97,7 +97,7 @@ def receive_messages():
             models.db.session.commit()
         except Exception as e:
             print('existing')
-            pass 
+            pass
     return 'success'
 
 ##############################
@@ -109,7 +109,7 @@ def get_message(e_id):
     Returns a single message given its message ID.
     """
     msg = models.Email.query.get(e_id)
-    return jsonify(msg.return_email())
+    return msg.return_email()
 
 
 @bp.route('/api/get_all_msg', methods=['GET'])
@@ -133,11 +133,10 @@ def reply_to_message(msg_id):
     message = models.Email.query.get(msg_id)
     message.needs_reply = False
     models.db.session.commit()
-    
-    
+
     content = request.form
 
-    original_email = json.loads(get_message(msg_id))
+    original_email = get_message(msg_id)
 
     sender = "teambottleneck@gmail.com"
     recipient = original_email["sender"]
