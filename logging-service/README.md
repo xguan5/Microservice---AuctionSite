@@ -12,7 +12,8 @@ apt-get install -y net-tools
 apt-get install -y openssh-client
 
 # Mongo DB
-docker run  -v ~/development/mpcs51205-group6/logging-service/app:/service/app \
+Run the following replacing the source volume with your directory:
+docker run  -v ~/development/mpcs51205-group6/logging-service/db:/service/db \
     -di -P --hostname mongo_db --name mongo_db -p 27017:27017 \
     --network auction-network \
     mongo
@@ -21,6 +22,7 @@ docker exec -it mongo_db mongo
 use logging_db
 
 # Logging Service
+Run the following replacing the source volume with your directory:
 docker run  -v ~/development/mpcs51205-group6/logging-service/app:/service/app \
     -di -P --hostname logging --name logging -p 6010:5000 \
     --network auction-network \

@@ -79,14 +79,14 @@ def create_auction():
 	add_log(note_msg_creator)
 
 	url = 'http://notification:5000/api/schedule_alerts'
-
-    data = {
-        'auc_id': new_auction.id,
-        'end_time': new_auction.end_time,
-        'start_time': new_auction.start_time
-    }
-
-    r = requests.post(url, data=data)
+	
+	data = {
+		'auc_id': new_auction.id,
+		'end_time': new_auction.end_time,
+		'start_time': new_auction.start_time
+	}
+	
+	r = requests.post(url, data=data)
 
 	return jsonify({'result': True, 'content': new_auction.to_json()})
 
@@ -312,7 +312,7 @@ def find_auction_open(day,hour):
 	for row in results:
 		receipients += str(row['creator']) + ', '
 	
-	note_msg_auctions = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':f'auction close in {day} day, {hour} hour, notify relevant users','receiver':receipients})
+	note_msg_auctions = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'auction close in {} day, {} hour, notify relevant users'.format(day, hour),'receiver':receipients})
 	add_log(note_msg_auctions)
 
 	return res

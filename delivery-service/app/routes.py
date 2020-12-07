@@ -17,10 +17,10 @@ def create_label(transact_id):
     return transaction.shipping_label
 
 # create a delivery
-@bp.route('api/delivery/create/<transact_id<',methods=['POST'])
+@bp.route('api/delivery/create/<transact_id>',methods=['POST'])
 def schedule_delivery(transact_id):
-	new_info = request.form
-	package_size = new_info['package_size'] # small package or med / large boxes
+    new_info = request.form
+    package_size = new_info['package_size'] # small package or med / large boxes
     courier = new_info['courier'] # DHL, EMS, Fedex
     shipping_option = new_info['shipping_option'] # standard or expedited
 
@@ -30,7 +30,7 @@ def schedule_delivery(transact_id):
     
     Delivery(transact_id, package_size, courier, shipping_option, \
         seller.username, seller.address_1, seller.address_2, seller.address_city, seller.address_state, seller.address_zip,\
-            buyer.username, buyer.address_1, buyer.address_2, buyer.address_city, buyer.address_state, buyer.address_zip))
+            buyer.username, buyer.address_1, buyer.address_2, buyer.address_city, buyer.address_state, buyer.address_zip)
     
     return True
     

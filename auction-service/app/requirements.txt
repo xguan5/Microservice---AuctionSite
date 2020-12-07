@@ -20,3 +20,4 @@ pika
 flask_sqlalchemy
 sqlalchemy
 psycopg2
+schedule
