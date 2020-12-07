@@ -279,7 +279,7 @@ def view_watchlist(username):
 
 
 # Check watchlist match
-@bp.route('/api/check_match/', methods=['GET'])
+@bp.route('/api/check_match/', methods=['POST'])
 def check_watchlist_match():
     """
     Given a set of auction criteria, return the email addresses of any user
@@ -291,6 +291,7 @@ def check_watchlist_match():
     buy_now_price = content["buy_now_price"]
     start_bid_price = content["start_bid_price"]
     name = content["name"]
+    auc_id = content["auc_id"]
 
     watchlists = models.WatchlistItem.query.all()
     if buy_now_price:
@@ -305,6 +306,12 @@ def check_watchlist_match():
         username = row.to_json()['username']
         emails.append(view_user(username)["email"])
 
+    url = 'http://notification:5000/api/send_auto_msg'
     for email in emails:
-        pass
-        # TODO: send to notification service
+		data = {
+            'msg': 'watchlist match',
+            'parameters': [auc_id],
+            'user_email': email
+        }
+
+		r = requests.post(url, data=data)

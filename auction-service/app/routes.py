@@ -75,12 +75,25 @@ def create_auction():
 	note_msg_creator = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'new_auction successfully created','receiver':creator,'content':str(new_auction.id)})
 	add_log(note_msg_creator)
 
+	# schedule start and stop, as well as alerts
 	url = 'http://notification:5000/api/schedule_alerts'
 
 	data = {
 		'auc_id': new_auction.id,
 		'end_time': new_auction.end_time,
 		'start_time': new_auction.start_time
+	}
+
+	r = requests.post(url, data=data)
+
+	# notify watchlist matches, if there are any
+	url = 'http://user:5000/api/check_match/'
+
+	data = {
+		'auc_id': new_auction.id,
+		'buy_now_price': buy_now_price,
+		'start_bid_price': start_bid_price,
+		'name': name
 	}
 
 	r = requests.post(url, data=data)
