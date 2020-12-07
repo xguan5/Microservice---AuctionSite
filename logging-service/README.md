@@ -2,24 +2,42 @@
 
 To Deploy: 
 
-Run the following replacing the source volume with your directory:
+# RabbitMQ
+docker run -d --hostname messaging --network auction-network --name messaging -p 15672:15672 -p 5672:5672 rabbitmq:3-management 
+docker exec -it messaging /bin/bash
+apt-get update
+apt-get install -y procps
+apt-get install -y vim
+apt-get install -y net-tools
+apt-get install -y openssh-client
+
+# Mongo DB
 docker run  -v ~/development/mpcs51205-group6/logging-service/app:/service/app \
-    -di -P --hostname logging --name logging -p 5002:5000 \
+    -di -P --hostname mongo_db --name mongo_db -p 27017:27017 \
     --network auction-network \
-    ubuntu:14.04 /bin/bash 
+    mongo
+
+docker exec -it mongo_db mongo
+use logging_db
+
+# Logging Service
+docker run  -v ~/development/mpcs51205-group6/logging-service/app:/service/app \
+    -di -P --hostname logging --name logging -p 6010:5000 \
+    --network auction-network \
+    python:3 /bin/bash 
 
 docker exec -it logging /bin/bash
 cd /service/app
-
 apt-get update
-apt-get install python3-pip
-apt-get install postgresql
-apt-get install libpq-dev
 
-pip3 install -r requirements.txt
-
+# Start Flask
+pip install -r requirements.txt
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 export FLASK_APP="app.py"
 
-python3 -m flask run --host="0.0.0.0"
+python -m flask run --host="0.0.0.0"
+
+
+
+

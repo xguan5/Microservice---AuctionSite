@@ -21,7 +21,7 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">Hello {{ session.username }}</h1>
+            <h1 class="order-amount">Hello {{ session.username }} - <a href="{{url_for('routes.emails') }}">Message Center</a></h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
             </div>
@@ -51,7 +51,12 @@
               <h3>Flagged Items</h3>
               <hr>
               {% for flag in flags %}
+              <hr>
               <h5>Flag: {{ flag.name }} </h5>
+              <ul>
+                <li>{{flag.item.name }}</li>
+                <li>{{flag.item.description}}</li>
+              </ul>
               {% endfor %}
         </div>
 

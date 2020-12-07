@@ -141,8 +141,9 @@ def create_flag():
 	#content = request.get_json(force=True)
 	content = request.form
 	name = content['name']
+	items = content['item_id']
 
-	new_flag = models.Flag(name)
+	new_flag = models.Flag(name, items)
 
 	models.db.session.add(new_flag)
 	models.db.session.commit()

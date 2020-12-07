@@ -12,7 +12,7 @@
   --radius: 6px;
   --logo-image: url("https://storage.googleapis.com/stripe-sample-images/KAVHOLM.svg");
   /*--form-width: 343px;*/
-  --form-width: 400px;
+  --form-width: 1000px;
 }
 
 /* Base */
@@ -405,7 +405,7 @@ pre {
 :root {
   --accent-color: #3d81e6;
   --headline-color: var(--accent-color);
-  --logo-image: url("/static/img/cs-logo.gif");
+  --logo-image: url("/static/img/cbay-logo.png");
 }
 
 .pasha-image-stack {

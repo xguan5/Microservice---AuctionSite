@@ -22,7 +22,7 @@
             <div class="sr-header__logo"></div>
           </header>
           <div class="sr-payment-summary payment-view">
-            <h1 class="order-amount">{{ user_details.username }} </h1>
+            <h1 class="order-amount">{{ user_details.username }} - <a href="{{url_for('routes.auction_list')}}">Home</a> </h1>
             <div class="sr-legal-text" style="text-align: left;">
                 <hr>
                 <h5>User details</h5>   
@@ -64,8 +64,35 @@
                 </button>
             </form>
           </div>
+          <div class="pricing-option">
+            <h1>Auctions I am Bidding on:</h1>
+            <hr>
+            <ul>
+              {% for auction in auction_list %}
+              <li><a href="{{ url_for('routes.get_auction_details', auction_id=auction.id) }}">{{ auction.name }}: Ends {{ auction.end_time }}</a></li>
+              {% endfor %}
+            </ul>
+            
+          </div>
 
-          
+          <div class="pricing-option">
+            <h1>Add a watchlist:</h1>
+            <hr>
+            <form method="POST" action="{{ url_for('routes.add_to_watchlist') }}">
+              <h5>Buy Now Price:</h5>
+              <input type="text" name="buy_now_price"  >
+              <h5>Start Bid Price:</h5>
+              <input type="text" name="start_bid_price"  >
+              <h5>Keyword:</h5>
+              <input type="text" name="name"  >
+              <button
+                  type="submit"
+                  style="width: 100%"
+              >
+              <span id="button-text" >Save</span>
+              </button>
+          </form>
+          </div>         
         </div>
       </div>
  

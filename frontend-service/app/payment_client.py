@@ -9,9 +9,9 @@ def get_port():
     return 5000
 
 
-def create_user(data):
+def create_payment_method(username, data):
 
-    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/PaymentMethod/create/{}'.format(get_ip(), get_port(), username)
 
     response = requests.post(url=url, data=data)
 

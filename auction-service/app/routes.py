@@ -265,7 +265,7 @@ def get_auction_winner(id):
 def find_auction_open(day,hour):
 
 	time_left = timedelta(days=int(day),hours=int(hour))
-	time_over = time_left+ datetime.now()
+	time_over = time_left + datetime.now()
 	results = []
 	for row in models.Auction.query.filter(and_(models.Auction.end_time <= time_over,models.Auction.end_time > datetime.now() )):
 		results.append(row.to_json())

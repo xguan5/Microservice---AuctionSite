@@ -10,6 +10,10 @@ from . import user_client as users
 from . import auction_client as auctions
 from . import authentication_client as auth
 from . import item_client as items
+from . import notification_client as notifications
+from . import payment_client as payments
+from . import delivery_client as delivery
+
 import psycopg2
 
 bp = Blueprint('routes', __name__, url_prefix='/')
@@ -55,12 +59,9 @@ def auction_list(sort='start_time'):
 
     auction_list = sorted(auction_list, key = lambda i: i[sort])
 
-    print('CHIP ', search_term)
-
     return_list = []
     for auction in auction_list:
         if search_term:
-            print(auction['item']['category_details']['name'], ' ' )
             if auction['item']['category_details']['name'] and search_term.lower() in auction['item']['category_details']['name'].lower():
                 return_list.append(auction)
             elif auction['item']['name'] and search_term.lower() in auction['item']['name'].lower():
@@ -71,6 +72,9 @@ def auction_list(sort='start_time'):
                 return_list.append(auction)
         else:
             return_list.append(auction)
+
+    return_list = list(filter(lambda d: d['status'] == 'Active', return_list))
+
 
     template = render_template('auction_list.html', 
         auction_list=return_list,
@@ -100,7 +104,6 @@ def create_auction():
             category_response = items.create_category(request.form['new_category'])
             category = category_response['result']['id']
         else:
-            raise ValueError('hmm')
             category = request.form['category']
             
         item_data = {
@@ -112,6 +115,11 @@ def create_auction():
 
         item_result = items.create_item(item_data)
 
+        if not request.form.get('image_url') or request.form.get('image_url') == '':
+            image_url = 'https://lh3.googleusercontent.com/proxy/3SeeYKkyo-5HciaBCdqZrPukroxnUNAzTRgEjo5JDV-jnGHD8SDrDX8X6Uow0W1M5WgqdtrSja0bKhg83MJbBTNIpKNDJ5Bi9irj2uVNGt3JxSny'
+        else:
+            image_url = request.form.get('image_url')
+
         auction_data = {
             'name': request.form['auction_name'],
             'buy_now_price': request.form['buy_now_price'],
@@ -120,7 +128,8 @@ def create_auction():
             'start_time': start_datetime,
             'end_time': end_datetime,
             'creator': session.get('username'),
-            'item': item_result['result']['id']
+            'item': item_result['result']['id'],
+            'image_url': image_url
         }
 
         auction_result = auctions.create_auction(auction_data)
@@ -145,7 +154,7 @@ def update_item(item_id, auction_id):
     return redirect(url_for('routes.get_auction_details', auction_id=auction_id))
 
 @bp.route('/auction/bid/<auction_id>', methods=['GET', 'POST'])
-def place_bid(auction_id):
+def place_bid(auction_id, message=None):
     
     try:
         amount = int(request.form.get('bid_amount'))
@@ -160,23 +169,34 @@ def place_bid(auction_id):
         bid_error = response['content']
     else:
         bid_error = None
+        message = "Bid Placed!"
 
-    return get_auction_details(auction_id=auction_id, bid_error=bid_error)
+    return get_auction_details(auction_id=auction_id, bid_error=bid_error, message=message)
 
 @bp.route('/auction/buy-now/<auction_id>', methods=['GET', 'POST'])
 def buy_now(auction_id):
 
-    print('Hello')
+    print('Hello %s' % request.form)
+
+    amount = request.form.get('buy_now_price_bid')
+    try:
+        amount = amount.split('.')[0]
+    except Exception as e:
+        pass
+
+    amount = int(amount)
 
     users.add_to_cart(session.get('username'), auction_id)
+    auctions.update_auction(auction_id, data={'status': 'end'})
+    auctions.place_bid(auction_id, session.get('username'), amount, datetime.datetime.now())
 
-    return get_auction_details(auction_id=auction_id)
+    return get_auction_details(auction_id=auction_id, bid_error=None, message="Item Added to Cart!")
 
 @bp.route('/auction/end-auction/<auction_id>', methods=['GET', 'POST'])
 def end_auction(auction_id):
 
     data = {
-        'status': 'ended',
+        'status': 'end',
         'end_time': datetime.datetime.now()
     }
 
@@ -184,12 +204,12 @@ def end_auction(auction_id):
 
     return get_auction_details(auction_id=auction_id)
 
-@bp.route('/auction/add-to-watchlist/<auction_id>', methods=['GET', 'POST'])
-def add_to_watchlist(auction_id):
+@bp.route('/auction/add-to-watchlist', methods=['GET', 'POST'])
+def add_to_watchlist():
 
-    response = users.add_to_watchlist(session.get('username', auction_id))
+    response = users.add_to_watchlist(session.get('username'), request.form)
 
-    return get_auction_details(auction_id=auction_id)
+    return user_details(username=session.get('username'))
 
 @bp.route('/auction/flag-item/<item_id>/<auction_id>', methods=['GET', 'POST'])
 def flag_item(item_id, auction_id):
@@ -207,23 +227,50 @@ def get_cart():
 
     cart_list = []
 
+    total = 0
+
     for item in response['content']:
         auction = auctions.get_auction_details(item['auc_id'])['result']
         auction['price'] = auctions.get_highest_bid(auction['id'])['max_bid']
-        cart_list.append(auction)
-        
+        cart_list.append(auction) 
+        total += auction['price']
 
-    template = render_template('cart.html', cart_list=cart_list)
+    template = render_template('cart.html', cart_list=cart_list, total=total)
 
     return template
 
-@bp.route('/checkout', methods=['GET', 'POST'])
-def checkout():
+@bp.route('/checkout/<total>', methods=['GET', 'POST'])
+def checkout(total):
+    
+    template = render_template('checkout.html', action='buy', total_amount=total)
 
-    return "Cha ching"
+    return template
+
+@bp.route('/purchase', methods=['GET', 'POST'])
+def purchase():
+
+    try:
+        users.clear_cart(session.get('username'))
+    except Exception as e:
+        print(str(e))
+        pass
+    try:
+        payments.create_payment_method(session.get('username'), data=request.form)
+    except Exception as e:
+        print(str(e))
+        pass
+    try:
+        delivery.create_shipment(auction_id)
+    except Exception as e:
+        print(str(e))
+        pass
+
+    template = render_template('checkout.html', action='done')
+
+    return template
 
 @bp.route('/auction/<auction_id>', methods=['GET'])
-def get_auction_details(auction_id, bid_error=None):
+def get_auction_details(auction_id, bid_error=None, message=None):
 
     auction_details = auctions.get_auction_details(auction_id)
     item_details = items.get_item_details(auction_details['result']['item'])
@@ -240,7 +287,7 @@ def get_auction_details(auction_id, bid_error=None):
     highest_bid = auctions.get_highest_bid(auction_id)
 
     try:
-        next_bid = int(highest_bid['max_bid'] + auction_details['result']['inc_bid_price'])
+        next_bid = max( int(highest_bid['max_bid']) + int(auction_details['result']['inc_bid_price']), int(auction_details['result']['start_bid_price']) + int(auction_details['result']['inc_bid_price']))
     except Exception as e:
         print(e)
         next_bid = 0
@@ -251,7 +298,9 @@ def get_auction_details(auction_id, bid_error=None):
         categories=categories,
         highest_bid=highest_bid['max_bid'],
         bid_error=bid_error,
-        next_bid=next_bid
+        next_bid=next_bid,
+        start_bid = auction_details['result']['start_bid_price'],
+        message=message
     )
     
     return template
@@ -324,8 +373,19 @@ def user_details(username):
 
     user_details = users.get_user_details(username)
 
+    all_bids = auctions.get_all_bids(username=session.get('username'))
+    auction_list1 = []
+    for bid in all_bids['content']:
+        if bid['auction'] not in auction_list1:
+            auction_list1.append(bid['auction'])
+
+    auction_list2 = []
+    for auction in auction_list1:
+        auction_list2.append(auctions.get_auction_details(auction)['result'])
+
     template = render_template('user_details.html', 
-        user_details=user_details.get('content')
+        user_details=user_details.get('content'),
+        auction_list=auction_list2
     )
     
     return template
@@ -333,15 +393,39 @@ def user_details(username):
 
 @bp.route('/admin', methods=['GET', 'POST'])
 def admin():
-    if request.method == 'POST':
-        categories = request.form
 
     flags = items.get_all_flags()
     categories = items.get_all_categories()
     print(flags)
+
+    for flag in flags:
+        flag['item'] = items.get_item_details(flag['items'])['result']
     template = render_template('admin.html', categories=categories, flags=flags)
 
     return template
+
+@bp.route('/emails', methods=['GET', 'POST'])
+def emails(status=None):
+
+    emails = notifications.get_emails()
+
+    blocked_senders = ['googlecommunityteam-noreply@google.com', 'no-reply@accounts.google.com']
+    emails_return_2 = list(filter(lambda d: d['sender'] not in blocked_senders, emails))
+
+    template = render_template('emails.html', emails=emails_return_2, status=status)
+
+    return template
+
+@bp.route('/email_response/<message_id>', methods=['GET', 'POST'])
+def email_response(message_id):
+
+    print(request.form)
+
+    message = request.form.get('message_text')
+
+    notifications.send_email(message_id, message)
+
+    return emails(status="Message Sent!")
 
 @bp.route('/admin/category-update', methods=['GET', 'POST'])
 def category_update():

@@ -8,11 +8,28 @@ def get_ip():
 def get_port():
     return 5000
 
-def create_user(data):
+def get_emails():
 
-    url = 'http://{}:{}/api/create_account'.format(get_ip(), get_port())
+    # Tell server to refresh
+    url = 'http://{}:{}/api/receive_msg'.format(get_ip(), get_port())
+    response = requests.get(url)
 
-    response = requests.post(url=url, data=data)
+    # Get the emails
+    url = 'http://{}:{}/api/get_all_msg'.format(get_ip(), get_port())
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        print(response.json())
+        return response.json()
+
+
+def send_email(message_id, message):
+
+    url = 'http://{}:{}/api/reply_msg/{}'.format(get_ip(), get_port(), message_id)
+
+    data = {'reply_text': message}
+
+    response = requests.post(url, data)
 
     if response.status_code == 200:
         print(response.json())
