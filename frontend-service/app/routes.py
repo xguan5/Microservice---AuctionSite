@@ -361,7 +361,7 @@ def signup():
 @bp.route('/user-updates/<username>',methods=['POST', 'GET'])
 def user_update(username):
 
-    user_details = users.update_user(username, request.form)
+    users.update_user(username, request.form)
 
     return user_details(username=username)
     
@@ -372,6 +372,8 @@ def user_details(username):
         return "<h1>You are not this user and you are not an admin</h1>"
 
     user_details = users.get_user_details(username)
+
+    #return user_details
 
     all_bids = auctions.get_all_bids(username=session.get('username'))
     auction_list1 = []
@@ -398,9 +400,31 @@ def admin():
     categories = items.get_all_categories()
     print(flags)
 
+    auctions_ended_yesterday = 0
+    auctions_ended_week = 0
+    auctions_ended_month = 0
+    auctions_ended_all_time = 0
+    all_auctions = auctions.get_all_auctions()
+    for auction in all_auctions:
+        end_time = auction['end_time']
+        if end_time: 
+            auctions_ended_all_time += 1
+        else: 
+            continue
+        today = datetime.datetime.now()
+        print(end_time)
+        end_time = datetime.datetime.strptime(end_time.replace(' GMT', ''), '%a, %d %b %Y %H:%M:%S')
+        print(end_time)
+        if end_time == today - datetime.timedelta(days=1):
+            auctions_ended_yesterday += 1
+        elif end_time >= today - datetime.timedelta(days=7):
+            auctions_ended_week += 1
+        elif end_time >= today - datetime.timedelta(days=31):
+            auctions_ended_month += 1
+
     for flag in flags:
         flag['item'] = items.get_item_details(flag['items'])['result']
-    template = render_template('admin.html', categories=categories, flags=flags)
+    template = render_template('admin.html', categories=categories, flags=flags, auctions_ended_yesterday=auctions_ended_yesterday, auctions_ended_week=auctions_ended_week, auctions_ended_month=auctions_ended_month,  auctions_ended_all_time=auctions_ended_all_time)
 
     return template
 

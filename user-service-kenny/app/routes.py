@@ -67,13 +67,13 @@ def view_user(username):
 
 
 # Update one or more pieces of info about a user
-@bp.route('/api/update_profile/<u_id>', methods=['GET'])
+@bp.route('/api/update_profile/<u_id>', methods=['POST'])
 def update_user(u_id):
     """
     Update information in a user profile. Can only be done with your own
     profile. (Q: add admin privilege to do this for another user?)
     """
-    user = models.User.query.get(u_id)
+    user = models.User.query.filter(models.User.username.ilike(u_id)).first()
 
     content = request.form
 
@@ -91,6 +91,8 @@ def update_user(u_id):
         user.address_state = content['address_state']
     if 'address_zip' in content.keys():
         user.address_zip = content['address_zip']
+    if 'status' in content.keys():
+        user.status = content['status']
 
     models.db.session.commit()
 

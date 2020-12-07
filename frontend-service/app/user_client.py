@@ -19,7 +19,7 @@ def create_user(data):
         return response.json()
 
 def update_user(username, data):
-    url = 'http://{}:{}/api/update_profile'.format(get_ip(), get_port())
+    url = 'http://{}:{}/api/update_profile/{}'.format(get_ip(), get_port(), username)
 
     response = requests.post(url=url, data=data)
 

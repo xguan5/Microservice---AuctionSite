@@ -64,9 +64,6 @@ def create_auction():
 	item = content['item']
 	image_url = content['image_url']
 
-	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
-	log_result = json.dumps({'msg_type':'log','service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
-
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item, image_url)
 	log_result = json.dumps({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
 
