@@ -32,15 +32,20 @@ print(' [*] Waiting for logs. To exit press CTRL+C')
 
 
 class Logs(db.Document):
+    msg_type = db.StringField()
     service = db.StringField()
     content = db.StringField()
     timestamp = db.StringField()
     action = db.StringField()
+    receiver = db.StringField()
     def to_json(self):
-        return {"service": self.service,
+        return {
+                "msg_type": self.msg_type,
+                "service": self.service,
                 "timestamp": self.timestamp,
                 "action": self.action,
-                "content": self.content}
+                "content": self.content,
+                "receiver": self.receiver}
 
 
 @app.route('/', methods=['GET'])
@@ -68,7 +73,10 @@ def create_log(record):
 def callback(ch, method, properties, body):
     print(" [x] Received %r" % body)
     record = json.loads(body)
-    log = Logs(service=record['service'],timestamp=record['timestamp'],action=record['action'],content=record['content'])
+    if record['msg_type'] == 'log':
+        log = Logs(service=record['service'],timestamp=record['timestamp'],action=record['action'],content=record['content'])
+    elif record['msg_type'] == 'notification':
+        log = Logs(timestamp=record['timestamp'],content=record['content'],receiver=record['receiver'])
     log.save()
 
 channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)

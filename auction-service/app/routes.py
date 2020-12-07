@@ -1,7 +1,7 @@
 
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 import traceback
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, escape, json, jsonify, Response, Blueprint
@@ -9,6 +9,7 @@ import requests
 from . import models as models
 from . import log_client as logs
 import pika
+from sqlalchemy import and_
 #from pandas.io.json import json_normalize 
 
 bp = Blueprint('routes', __name__, url_prefix='/')
@@ -46,12 +47,10 @@ def get_auction(id):
 	return jsonify({'result': auction.to_json()})
 
 #create a new auction
-#To do: trigger notification
 @bp.route('api/auction/create',methods=['POST'])
 def create_auction():
 	#content = request.get_json(force=True)
 	content = request.form
-	print(content)
 	name = content['name']
 	buy_now_price = content['buy_now_price']
 	start_bid_price = content['start_bid_price']
@@ -62,13 +61,24 @@ def create_auction():
 	item = content['item']
 
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
-	log_result = json.dumps({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
-
+	log_result = json.dumps({'msg_type':'log','service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
 	add_log(log_result)
-	
 
 	models.db.session.add(new_auction)
 	models.db.session.commit()
+
+	note_msg_creator = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'new_auction successfully created','receiver':creator,'content':str(new_auction.id)})
+	add_log(note_msg_creator)
+
+	url = 'http://notification:5000/api/schedule_alerts'
+
+    data = {
+        'auc_id': new_auction.id,
+        'end_time': new_auction.end_time,
+        'start_time': new_auction.start_time
+    }
+
+    r = requests.post(url, data=data)
 
 	return jsonify({'result': True, 'content': new_auction.to_json()})
 
@@ -107,7 +117,7 @@ def update_auction(id):
 		status = content['status']
 		auction.status = status
 
-	log_result = json.dumps({'service':'auction','action':'update auction','timestamp':datetime.now(),'content':json.dumps(content)})
+	log_result = json.dumps({'msg_type':'log','service':'auction','action':'update auction','timestamp':datetime.now(),'content':json.dumps(content)})
 	add_log(log_result)
 	models.db.session.commit()
 
@@ -119,7 +129,7 @@ def delete_auction(id):
 	auction = models.Auction.query.get(id)
 	models.db.session.delete(auction)
 	models.db.session.commit()
-	log_result = json.dumps({'service':'auction','action':'delete auction','timestamp':datetime.now(),'content':'deleted auction {}'.format(id)})
+	log_result = json.dumps({'msg_type':'log','service':'auction','action':'delete auction','timestamp':datetime.now(),'content':'deleted auction {}'.format(id)})
 	add_log(log_result)
 	return jsonify({'result': auction.to_json()})
 
@@ -199,13 +209,13 @@ def create_bid(id):
 		models.db.session.commit()
 
 		success = True
-		log_result = json.dumps({'service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)})
+		log_result = json.dumps({'msg_type':'log','service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)})
 		add_log(log_result)
 		#new bid placed, notify the previous highest bidder
-		note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
+		note_msg_prevhigh = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
 		add_log(note_msg_prevhigh)
 		#new bid placed, notify the seller
-		note_msg_seller = json.dumps({'timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
+		note_msg_seller = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
 		add_log(note_msg_seller)
 
 		return jsonify({'result': success, ' content': new_bid.to_json()})
@@ -250,3 +260,41 @@ def get_auction_winner(id):
 #return all active auctions
 
 #if an auction ends in predetermined timeframe, msg notification service
+#search auction by end time, it should be passed in as {‘day':1,'hour':1}
+@bp.route('/api/auction/findopen/<day>/<hour>',methods =['GET'])
+def find_auction_open(day,hour):
+
+	time_left = timedelta(days=int(day),hours=int(hour))
+	time_over = time_left+ datetime.now()
+	results = []
+	for row in models.Auction.query.filter(and_(models.Auction.end_time <= time_over,models.Auction.end_time > datetime.now() )):
+		results.append(row.to_json())
+	res = jsonify(results)
+
+	receipients = ''
+	for row in results:
+		receipients += str(row['creator']) + ', '
+	
+	note_msg_auctions = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':f'auction close in {day} day, {hour} hour, notify relevant users','receiver':receipients})
+	add_log(note_msg_auctions)
+
+	return res
+
+@bp.route('/api/auction/findclosed/<day>/<hour>',methods =['GET'])
+def find_auction_close(day,hour):
+
+	time_gap = timedelta(days=int(day),hours=int(hour))
+	time_over = datetime.now() - time_gap
+	results = []
+	for row in models.Auction.query.filter(and_(models.Auction.end_time == time_over,models.Auction.end_time < datetime.now() )):
+		results.append(row.to_json())
+	res = jsonify(results)
+
+	return res
+
+
+
+
+
+
+

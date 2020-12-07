@@ -2,6 +2,9 @@ import os
 from . import models as models
 from flask import Flask
 import traceback 
+import schedule
+import time
+#from . import routes
 
 def create_app(test_config=None):
     # create and configure the app
@@ -47,8 +50,11 @@ def create_app(test_config=None):
 
 
     from . import routes
+    #schedule.every(1).minutes.do(routes.find_auction(0,1))
+
     app.register_blueprint(routes.bp)
 
     return app
+
 
 create_app()
