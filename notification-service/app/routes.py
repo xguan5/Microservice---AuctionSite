@@ -30,8 +30,8 @@ def send_auto_msg():
     auto_messages = {
         'watchlist match': 'A new item that matches your watchlist has been posted.\nID: {}',
         'new bid': 'A buyer has bid on your item!\nItem name: {}\nAuction ID: {}\nBid amount: {}',
-        'outbid': 'Another buyer has outbid you on an auction\nItem name: {}\nAuction ID: {}\nYour bid amount: {}\nTheir bid amount: {}',
-        'time': 'An auction you are involved in is ending soon.\nItem name: {}\nAuction ID: {}\nTime remaining:{}'
+        'outbid': 'Another buyer has outbid you on an auction\nItem name: {}\nAuction ID: {}\nTheir bid amount: {}',
+        'time': 'An auction you are involved in is ending soon.\nItem name: {}\nAuction ID: {}\nTime remaining: {}'
     }
 
     auto_subjects = {
@@ -75,12 +75,18 @@ def schedule_alerts():
                                   datetime.strptime(start_time, '%H:%M').time())
 
     # schedule start of auction
-    trigger = DateTrigger(run_date=start_time)
-    scheduler.add_job(trigger_auction, args=[auc_id, 'start'], trigger=trigger)
+    if start_time <= datetime.now():
+        scheduler.add_job(trigger_auction, args=[auc_id, 'start'])
+    else:
+        trigger = DateTrigger(run_date=start_time)
+        scheduler.add_job(trigger_auction, args=[auc_id, 'start'], trigger=trigger)
 
     # schedule end of auction
-    trigger = DateTrigger(run_date=end_time)
-    scheduler.add_job(trigger_auction, args=[auc_id, 'end'], trigger=trigger)
+    if end_time <= datetime.now():
+        scheduler.add_job(trigger_auction, args=[auc_id, 'end'])
+    else:
+        trigger = DateTrigger(run_date=end_time)
+        scheduler.add_job(trigger_auction, args=[auc_id, 'end'], trigger=trigger)
 
     # schedule 24-hr reminder
     if end_time > datetime.now() + timedelta(hours=24):
@@ -98,7 +104,7 @@ def trigger_auction(auc_id, action):
     Start/end an auction.
     """
     url = 'http://auction:5000/api/auction/' + str(auc_id)
-    new_status = "Active" if action == "start" else "Completed" # is this the right terminology?
+    new_status = "Active" if action == "start" else "end" # is this the right terminology?
     data = {'status': new_status}
 
     response = requests.put(url, data=data)
@@ -124,8 +130,8 @@ def send_alerts(auc_id, time_remaining):
     # finally, send an automated email to all of these people
     msg_url = 'http://notification:5000/api/send_auto_msg'
     for user_id in [seller_id] + buyer_ids:
-        user_url = 'http://user:5000/api/view_profile/' + user_id
-        response = requests.get(msg_url)
+        user_url = 'http://user:5000/api/view_profile/' + str(user_id)
+        response = requests.get(user_url)
         recipient = response["content"]["email"]
 
         data = {

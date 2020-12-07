@@ -27,7 +27,7 @@ class Auction(db.Model):
     buy_now_price = db.Column(db.Float)
     start_bid_price = db.Column(db.Float)
     inc_bid_price = db.Column(db.Float)
-    status = db.Column(db.String(50), default="Active")
+    status = db.Column(db.String(50), default="Draft")
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     end_time = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate = datetime.utcnow)

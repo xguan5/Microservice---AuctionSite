@@ -10,7 +10,7 @@ from . import models as models
 from . import log_client as logs
 import pika
 from sqlalchemy import and_
-#from pandas.io.json import json_normalize 
+#from pandas.io.json import json_normalize
 
 bp = Blueprint('routes', __name__, url_prefix='/')
 
@@ -32,7 +32,7 @@ def add_log(msg):
 	except Exception as e:
 		print(str(e))
 		return "Pass"
-    
+
 
 #get all auctions
 @bp.route('/api/auctions', methods=['GET'])
@@ -76,13 +76,13 @@ def create_auction():
 	add_log(note_msg_creator)
 
 	url = 'http://notification:5000/api/schedule_alerts'
-	
+
 	data = {
 		'auc_id': new_auction.id,
 		'end_time': new_auction.end_time,
 		'start_time': new_auction.start_time
 	}
-	
+
 	r = requests.post(url, data=data)
 
 	return jsonify({'result': True, 'content': new_auction.to_json()})
@@ -178,7 +178,7 @@ def inc_bid(id):
 @bp.route('api/auction/<id>/createbid',methods=['POST'])
 def create_bid(id):
 	content = request.form
-	
+
 	bidder = content['user_id']
 	bid_price = content['bid_price']
 	bid_placed = content['bid_placed']
@@ -188,7 +188,7 @@ def create_bid(id):
 	cur_high_bid = json.loads(highest_bid(id).data.decode('utf-8').replace("'", '"'))['max_bid']
 	starting_bid = json.loads(start_bid(id).data.decode('utf-8').replace("'", '"'))
 	incremental_bid = json.loads(inc_bid(id).data.decode('utf-8').replace("'", '"'))
-	
+
 	auction = models.Auction.query.get(id)
 
 	print(bid_price, ' ', incremental_bid, ' ', cur_high_bid)
@@ -208,13 +208,13 @@ def create_bid(id):
 		return {'result':success,'content':'new bid must be higher than starting bid price'}
 	elif int(bid_price) - int(cur_high_bid) < int(incremental_bid) :
 		success = False
-		return {'result':success,'content':'new bid must be higher than existing bids at least by the incremental amount'}	
+		return {'result':success,'content':'new bid must be higher than existing bids at least by the incremental amount'}
 	elif int(bid_price) - int(starting_bid) < int(incremental_bid):
 		success = False
-		return {'result':success,'content':'new bid must be higher than starting bid at least by the incremental amount'}	
+		return {'result':success,'content':'new bid must be higher than starting bid at least by the incremental amount'}
 	else:
 		try:
-			prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json['user']
+			prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json()['user']
 		except Exception as e:
 			prev_high_bidder = None
 		auction = models.Auction.query.get(id)
@@ -238,9 +238,38 @@ def create_bid(id):
 			note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
 			add_log(note_msg_prevhigh)
 
+			user_url = 'http://user:5000/api/view_profile/' + str(prev_high_bidder)
+			response = requests.get(user_url)
+			recipient = response["content"]["email"]
+
+			url = 'http://notification:5000/api/send_auto_msg'
+
+			data = {
+				'msg': 'outbid',
+				'parameters': [auction["item"], new_bid.auction_id, new_bid.bid_price],
+				'user_email': recipient
+			}
+
+			r = requests.post(url, data=data)
+
+
 		#new bid placed, notify the seller
 		note_msg_seller = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
 		add_log(note_msg_seller)
+
+		user_url = 'http://user:5000/api/view_profile/' + str(seller)
+		response = requests.get(user_url)
+        recipient = response["content"]["email"]
+
+		url = 'http://notification:5000/api/send_auto_msg'
+
+		data = {
+            'msg': 'new bid',
+            'parameters': [auction["item"], new_bid.auction_id, new_bid.bid_price],
+            'user_email': recipient
+        }
+
+		r = requests.post(url, data=data)
 
 		return jsonify({'result': success, ' content': new_bid.to_json()})
 
@@ -287,9 +316,9 @@ def all_bids(username):
 	all_bids = []
 	for row in models.Bidding.query.filter_by(user_id=username):
 		all_bids.append(row.to_json())
-		
+
 	return json.dumps({'content': all_bids})
-    
+
 
 #return all active auctions
 
@@ -308,7 +337,7 @@ def find_auction_open(day,hour):
 	receipients = ''
 	for row in results:
 		receipients += str(row['creator']) + ', '
-	
+
 	note_msg_auctions = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'auction close in {} day, {} hour, notify relevant users'.format(day, hour),'receiver':receipients})
 	add_log(note_msg_auctions)
 
