@@ -4,7 +4,7 @@ import sys
 from datetime import datetime, timedelta
 import traceback
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash, escape, json, jsonify, Response, Blueprint
+	 render_template, flash, escape, json, jsonify, Response, Blueprint
 import requests
 from . import models as models
 from . import log_client as logs
@@ -272,15 +272,15 @@ def create_bid(id):
 
 		user_url = 'http://user:5000/api/view_profile/' + str(seller)
 		response = requests.get(user_url)
-        recipient = response["content"]["email"]
+		recipient = response["content"]["email"]
 
 		url = 'http://notification:5000/api/send_auto_msg'
 
 		data = {
-            'msg': 'new bid',
-            'parameters': [auction["item"], new_bid.auction_id, new_bid.bid_price],
-            'user_email': recipient
-        }
+			'msg': 'new bid',
+			'parameters': [auction["item"], new_bid.auction_id, new_bid.bid_price],
+			'user_email': recipient
+		}
 
 		r = requests.post(url, data=data)
 
