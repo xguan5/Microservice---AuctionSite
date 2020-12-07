@@ -32,12 +32,11 @@ def check_login():
 def auction_list(sort='start_time'):
     error=None
 
-    print(request.form)
-
     if not check_login():
         return redirect( url_for('routes.login') )
 
     auction_list = auctions.get_all_auctions()
+    
     categories = items.get_all_categories()
     for auction in auction_list:
         auction['item'] = items.get_item_details(auction['item'])['result']
@@ -73,7 +72,7 @@ def auction_list(sort='start_time'):
         else:
             return_list.append(auction)
 
-    return_list = list(filter(lambda d: d['status'] == 'Active', return_list))
+    return_list = list(filter(lambda d: d['status'].replace(' ', '') == 'Active', return_list))
 
 
     template = render_template('auction_list.html', 
@@ -146,10 +145,7 @@ def create_auction():
 @bp.route('/auction/update/<auction_id>', methods=['GET', 'POST'])
 def update_auction(auction_id):
 
-    return redirect(url_for('routes.get_auction_details', auction_id=auction_id))
-
-@bp.route('/item/update/<item_id>/<auction_id>', methods=['GET', 'POST'])
-def update_item(item_id, auction_id):
+    auctions.update_auction(auction_id, data=request.form)
 
     return redirect(url_for('routes.get_auction_details', auction_id=auction_id))
 
