@@ -308,10 +308,10 @@ def check_watchlist_match():
 
     url = 'http://notification:5000/api/send_auto_msg'
     for email in emails:
-		data = {
+        data = {
             'msg': 'watchlist match',
             'parameters': [auc_id],
             'user_email': email
         }
 
-		r = requests.post(url, data=data)
+        r = requests.post(url, data=data)
