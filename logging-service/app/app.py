@@ -6,7 +6,7 @@ import pika
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
     'db': 'logging_db',
-    'host': 'localhost',
+    'host': 'mongo_db',
     'port': 27017
 }
 db = MongoEngine()
@@ -14,7 +14,7 @@ db.init_app(app)
 
 #set up receiver end of rabbitmq
 credentials = pika.PlainCredentials(username='guest', password='guest')
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='messaging',port=5672,credentials=credentials))
 
 channel = connection.channel()
 
@@ -57,6 +57,14 @@ def query_records():
     else:
         return jsonify(log.to_json())
 
+"""
+{
+"service": "acution",
+"timestamp": "2020-01-01",
+"action": "action",
+"content": "content"
+}
+"""
 #don't need this any more
 @app.route('/api/create_log', methods=['POST'])
 def create_log(record):

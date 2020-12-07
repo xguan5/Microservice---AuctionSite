@@ -23,8 +23,8 @@ def get_PaymentMethod(userid):
 	return pmt_methods_dict
 
 # create a payment method
-@bp.route('api/PaymentMethod/create',methods=['POST'])
-def create_PaymentMethod():
+@bp.route('api/PaymentMethod/create/<user_id>',methods=['POST'])
+def create_PaymentMethod(user_id):
 	new_info = request.form
 	
 	card_num = new_info['card_num']

@@ -19,15 +19,18 @@ bp = Blueprint('routes', __name__, url_prefix='/')
 def add_log(msg):
 	try:
 		credentials = pika.PlainCredentials(username='guest', password='guest')
-		connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',port=5672,credentials=credentials))
+		connection = pika.BlockingConnection(pika.ConnectionParameters(host='messaging',port=5672,credentials=credentials))
 		channel = connection.channel()
 		channel.exchange_declare(exchange='logs', exchange_type='fanout')
 		channel.basic_publish(exchange='logs', routing_key='', body=msg)
 		#channel.queue_declare(queue='hello')
 		#channel.basic_publish(exchange='', routing_key='hello', body=msg)
+		print(connection)
+		print(msg)
 		connection.close()
-		return " [x] Sent {}" % msg
+		return " [x] Sent %s" % msg
 	except Exception as e:
+		print(str(e))
 		return "Pass"
     
 
@@ -59,9 +62,16 @@ def create_auction():
 	end_time = content['end_time']
 	creator = content['creator']
 	item = content['item']
+	image_url = content['image_url']
 
+<<<<<<< HEAD
 	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item)
 	log_result = json.dumps({'msg_type':'log','service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
+=======
+	new_auction = models.Auction(name,buy_now_price,start_bid_price,inc_bid_price,start_time,end_time,creator,item, image_url)
+	log_result = json.dumps({'service':'auction','action':'create auction','timestamp':datetime.now(),'content':json.dumps(content)})
+
+>>>>>>> 1cf48d8b4b8735241427b4fb6551d5c9bf9dd1d7
 	add_log(log_result)
 
 	models.db.session.add(new_auction)
@@ -185,6 +195,12 @@ def create_bid(id):
 	incremental_bid = json.loads(inc_bid(id).data.decode('utf-8').replace("'", '"'))
 	
 	auction = models.Auction.query.get(id)
+
+	print(bid_price, ' ', incremental_bid, ' ', cur_high_bid)
+	print(int(bid_price) - int(cur_high_bid))
+	print(int(incremental_bid))
+	print(int(bid_price) - int(cur_high_bid) < int(incremental_bid))
+	print(int(bid_price) - int(starting_bid))
 	if auction.end_time < datetime.now() or auction.status == 'end':
 		success = False
 		return {'result':success,'content':'Auction is already over, cannot place new bid'}
@@ -195,13 +211,19 @@ def create_bid(id):
 	elif int(bid_price) < int(starting_bid):
 		success = False
 		return {'result':success,'content':'new bid must be higher than starting bid price'}
-	elif int(bid_price) - int(cur_high_bid) < int(incremental_bid) or int(bid_price) - int(starting_bid) < int(incremental_bid):
+	elif int(bid_price) - int(cur_high_bid) < int(incremental_bid) :
 		success = False
 		return {'result':success,'content':'new bid must be higher than existing bids at least by the incremental amount'}	
+	elif int(bid_price) - int(starting_bid) < int(incremental_bid):
+		success = False
+		return {'result':success,'content':'new bid must be higher than starting bid at least by the incremental amount'}	
 	else:
-		prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json['user']
+		try:
+			prev_high_bidder = models.Bidding.query.filter_by(bid_price = cur_high_bid).first().to_json['user']
+		except Exception as e:
+			prev_high_bidder = None
 		auction = models.Auction.query.get(id)
-		seller = auction.creator
+		seller = auction.creator_id
 
 		new_bid = models.Bidding(bidder,id,bid_price,bid_placed)
 
@@ -212,8 +234,15 @@ def create_bid(id):
 		log_result = json.dumps({'msg_type':'log','service':'auction','action':'create bid','timestamp':datetime.now(),'content':json.dumps(content)})
 		add_log(log_result)
 		#new bid placed, notify the previous highest bidder
+<<<<<<< HEAD
 		note_msg_prevhigh = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
 		add_log(note_msg_prevhigh)
+=======
+
+		if prev_high_bidder:
+			note_msg_prevhigh = json.dumps({'timestamp':datetime.now(),'content':'higher bid placed, notify the previous high bidder','receiver':prev_high_bidder})
+			add_log(note_msg_prevhigh)
+>>>>>>> 1cf48d8b4b8735241427b4fb6551d5c9bf9dd1d7
 		#new bid placed, notify the seller
 		note_msg_seller = json.dumps({'msg_type':'notification','timestamp':datetime.now(),'content':'new bid placed, notify the seller','receiver':seller})
 		add_log(note_msg_seller)
@@ -256,6 +285,16 @@ def get_auction_winner(id):
 	return jsonify({'result': auction.winner})
 
 #return metric of auctions within some time interval, rabbitmq msg to notification
+
+#return the highest bid so far
+@bp.route('/api/auction/all-bids/<username>', methods=['GET'])
+def all_bids(username):
+	all_bids = []
+	for row in models.Bidding.query.filter_by(user_id=username):
+		all_bids.append(row.to_json())
+		
+	return json.dumps({'content': all_bids})
+    
 
 #return all active auctions
 

@@ -90,12 +90,15 @@ def receive_messages():
                 else:
                     mail_content = message.get_payload()
 
-        new_email = models.Email(i, mail_from, "teambottleneck@gmail.com",
-                                 mail_subject, mail_content)
-        models.db.session.add(new_email)
-        models.db.session.commit()
-
-    return True
+        new_email = models.Email(int(i), mail_from, "teambottleneck@gmail.com",
+                                 mail_subject, mail_content, needs_reply=True)
+        try:
+            models.db.session.add(new_email)
+            models.db.session.commit()
+        except Exception as e:
+            print('existing')
+            pass
+    return 'success'
 
 ##############################
 # REPLY TO CUSTOMER MESSAGES #
@@ -106,7 +109,7 @@ def get_message(e_id):
     Returns a single message given its message ID.
     """
     msg = models.Email.query.get(e_id)
-    return jsonify(msg.return_email())
+    return msg.return_email()
 
 
 @bp.route('/api/get_all_msg', methods=['GET'])
@@ -121,15 +124,19 @@ def get_messages():
     return jsonify(data)
 
 
-@bp.route('/api/reply_msg/<msg_id>', methods=['GET'])
+@bp.route('/api/reply_msg/<msg_id>', methods=['POST'])
 def reply_to_message(msg_id):
     """
     Sends a reply to a specific message.
     """
 
+    message = models.Email.query.get(msg_id)
+    message.needs_reply = False
+    models.db.session.commit()
+
     content = request.form
 
-    original_email = json.loads(get_message(msg_id))
+    original_email = get_message(msg_id)
 
     sender = "teambottleneck@gmail.com"
     recipient = original_email["sender"]
@@ -143,5 +150,8 @@ def reply_to_message(msg_id):
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+        print('fire away')
         server.login(sender, password)
         server.sendmail(sender, recipient, subject + "\n\n" + msg)
+
+    return 'success'

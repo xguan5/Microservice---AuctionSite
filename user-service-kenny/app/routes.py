@@ -229,7 +229,7 @@ def view_cart(u_id):
 # WATCHLIST #
 #############
 # Add to watchlist
-@bp.route('/api/add_to_watchlist/<username>', methods=['GET'])
+@bp.route('/api/add_to_watchlist/<username>', methods=['POST'])
 def add_to_watchlist(username):
     """
     Allow a user to add either a current auction or a "buy-now" item to their
